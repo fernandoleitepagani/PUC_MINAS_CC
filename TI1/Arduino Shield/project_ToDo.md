@@ -30,10 +30,10 @@
   - [ ] Aumentar velocidade do cronômetro em **5%** (ajustar frequência de atualização do timer)  
   - [ ] Manter feedback visual dos LEDs
 
-- [ ] **Temporização e alarmes sonoros**
-  - [ ] Calcular limiar de **10%** do tempo inicial  
-  - [ ] Quando tempo ≤ 10% do inicial, buzzer bip curto a cada **1 s**  
-  - [ ] Se tempo = 0: buzzer contínuo e display travado em **"0000"**
+- [X] **Temporização e alarmes sonoros**
+  - [X] Calcular limiar de **10%** do tempo inicial  
+  - [X] Quando tempo ≤ 10% do inicial, buzzer bip curto a cada **1 s**  
+  - [X] Se tempo = 0: buzzer contínuo e display travado em **"0000"**
 
 - [ ] **Condição de sucesso**
   - [ ] Se 8 valores forem inseridos corretamente: parar contador  
