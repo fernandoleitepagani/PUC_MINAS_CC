@@ -28,7 +28,7 @@ _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shi
 
 - [ ] **Lidar com erro na sequência**
   - [X] Ao erro, reiniciar índice da tentativa (voltar ao início da sequência atual)  
-  - [X] Aumentar velocidade do cronômetro em **5%** (ajustar frequência de atualização do timer)  
+  - [ ] Aumentar velocidade do cronômetro em **5%** (ajustar frequência de atualização do timer)  
   - [X] Manter feedback visual dos LEDs
 
 - [X] **Temporização e alarmes sonoros**
@@ -36,10 +36,10 @@ _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shi
   - [X] Quando tempo ≤ 10% do inicial, buzzer bip curto a cada **1 s**  
   - [X] Se tempo = 0: buzzer contínuo e display travado em **"0000"**
 
-- [ ] **Condição de sucesso**
-  - [ ] Se 8 valores forem inseridos corretamente: parar contador  
-  - [ ] Exibir **"OFF"** no display  
-  - [ ] Emitir **3 bipes** de confirmação pelo buzzer
+- [X] **Condição de sucesso**
+  - [X] Se 8 valores forem inseridos corretamente: parar contador  
+  - [X] Exibir **"OFF"** no display  
+  - [X] Emitir **3 bipes** de confirmação pelo buzzer
 
 - [ ] **Sincronização / reinício (opcional)**
   - [ ] Permitir reinício manual (botão dedicado ou reset)  
