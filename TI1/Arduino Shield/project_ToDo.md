@@ -9,10 +9,10 @@
   - [ ] Mapear para intervalo **10–90 segundos**  
   - [ ] Mostrar tempo mapeado no display de 7 segmentos
 
-- [ ] **Gerar senha aleatória**
-  - [ ] Ao reset, inicializar gerador de números aleatórios (seed)  
-  - [ ] Gerar sequência de **8** valores entre **1** e **3**  
-  - [ ] Armazenar sequência em buffer interno
+- [X] **Gerar senha aleatória**
+  - [X] Ao reset, inicializar gerador de números aleatórios (seed)  
+  - [X] Gerar sequência de **8** valores entre **1** e **3**  
+  - [X] Armazenar sequência em buffer interno
 
 - [ ] **Preparar lógica de início**
   - [ ] Aguardar primeiro pressionamento de qualquer botão (S1/S2/S3)  
