@@ -9,7 +9,7 @@ volatile bool gotright;
 int password[8];
 volatile int segundos = 10; 
 volatile bool TimeOver = false;
-
+int 
 /*-------------Funcoes---------------*/
 void passwd(){
   srand(time(0));
@@ -100,8 +100,9 @@ void setup(){
   //botao1, botao2 ou botao3 ---> pressinou
   int read = analogRead(A0);
   int time = map(read, 0, 1023, 10, 90);
-  timer.initialize(time);         // Define o intervalo para 90 segundos
-  timer.attachInterrupt(countdown);   // função que fará a subtração
+  Timer1.initialize(time);         // Define o intervalo para 90 segundos
+  MFS.initialize(&Timer1); // incializa a biblioteca
+  Timer1.attachInterrupt(countdown);   // função que fará a subtração
   Serial.begin(9600);
 }
 
