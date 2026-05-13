@@ -1,18 +1,19 @@
 # To‑Do List — Atividade Prática: Desafio do Desativador de Bombas
+_Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shield-multi-funcoes-para-arduino/)_
 - [ ] **Configurar hardware**
   - [ ] Conectar Multi-function Shield ao Arduino  
   - [ ] Verificar ligação de S1, S2, S3, potenciômetro, 4 LEDs, buzzer e display de 7 segmentos  
   - [ ] Testar leitura analógica do potenciômetro e saída para display/buzzer
 
-- [ ] **Ler e mapear tempo inicial**
-  - [ ] Ler valor do trimpot na inicialização  
-  - [ ] Mapear para intervalo **10–90 segundos**  
-  - [ ] Mostrar tempo mapeado no display de 7 segmentos
+- [X] **Ler e mapear tempo inicial**
+  - [X] Ler valor do trimpot na inicialização  
+  - [X] Mapear para intervalo **10–90 segundos**  
+  - [X] Mostrar tempo mapeado no display de 7 segmentos
 
-- [ ] **Gerar senha aleatória**
-  - [ ] Ao reset, inicializar gerador de números aleatórios (seed)  
-  - [ ] Gerar sequência de **8** valores entre **1** e **3**  
-  - [ ] Armazenar sequência em buffer interno
+- [X] **Gerar senha aleatória**
+  - [X] Ao reset, inicializar gerador de números aleatórios (seed)  
+  - [X] Gerar sequência de **8** valores entre **1** e **3**  
+  - [X] Armazenar sequência em buffer interno
 
 - [ ] **Preparar lógica de início**
   - [ ] Aguardar primeiro pressionamento de qualquer botão (S1/S2/S3)  
@@ -26,9 +27,9 @@
   - [ ] Atualizar LEDs em formato binário mostrando acertos acumulados na tentativa atual
 
 - [ ] **Lidar com erro na sequência**
-  - [ ] Ao erro, reiniciar índice da tentativa (voltar ao início da sequência atual)  
-  - [ ] Aumentar velocidade do cronômetro em **5%** (ajustar frequência de atualização do timer)  
-  - [ ] Manter feedback visual dos LEDs
+  - [X] Ao erro, reiniciar índice da tentativa (voltar ao início da sequência atual)  
+  - [X] Aumentar velocidade do cronômetro em **5%** (ajustar frequência de atualização do timer)  
+  - [X] Manter feedback visual dos LEDs
 
 - [X] **Temporização e alarmes sonoros**
   - [X] Calcular limiar de **10%** do tempo inicial  
