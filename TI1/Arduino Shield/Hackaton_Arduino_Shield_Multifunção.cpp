@@ -110,7 +110,7 @@ void loop(){
 
   Serial.print("Tempo restante: ");
   Serial.println(segundos);  
-  if (TimeOver = =true) {
+  if (TimeOver == true) {
     Serial.println("BOOM! Tempo esgotado.");
     while(1); // Para o programa
   }
