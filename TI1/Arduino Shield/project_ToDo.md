@@ -26,7 +26,7 @@ _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shi
 
 - [X] **Lidar com erro na sequência**
   - [X] Ao erro, reiniciar índice da tentativa (voltar ao início da sequência atual)  
-  - [X] Aumentar velocidade do cronômetro em **5%** (ajustar frequência de atualização do timer)  
+  - [ ] Aumentar velocidade do cronômetro em **5%** (ajustar frequência de atualização do timer)  
   - [X] Manter feedback visual dos LEDs
 
 - [X] **Temporização e alarmes sonoros**
