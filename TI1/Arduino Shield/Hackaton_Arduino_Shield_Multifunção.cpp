@@ -6,7 +6,6 @@
 #include <ctime.h>
 
 /*-------------Globais--------------*/
-volatile bool gotright;
 int password[8];
 // volatile int segundos = 10; 
 volatile bool TimeOver = false;
@@ -79,7 +78,7 @@ void buzzer(){
   unsigned long previousMillis = 0;
   const long interval = 100;
   int buzzerState = LOW;
-  unsigned long currentMillis = millis();
+  unsigned long currentMillis = millis(); // o que kcts é millis()
   
  if (time <= 18 && time > 10) { // 18 para 10
     
@@ -115,7 +114,7 @@ void setup(){
   MFS.write((int)time);
   if (SW1 == LOW || SW2 == LOW || SW3 == LOW){  //botao1, botao2 ou botao3 ---> pressinou
     Timer1.initialize(time);  // Define o intervalo para 90 segundos
-    MFS.initialize(&Timer1); // incializa a biblioteca
+    MFS.initialize(&Timer1); // inicializa a biblioteca
     MFS.write("GO");
   }
   serial.begin(9600);
@@ -123,7 +122,7 @@ void setup(){
 
 void loop(){
   buzzer();
-  countdown(time); //time-- 
+  countdown(time); //time--
   if (TimeOver == true) {
     MFS.write("0000");
     while(1); // Para o programa
@@ -144,7 +143,7 @@ void loop(){
   else if (right == 8){
     Timer1.stop();
     MFS.write("OFF");
-    MFS.beep(5,0,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
+    MFS.beep(6,4,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
     while(1); // Para o programa
   }
 }

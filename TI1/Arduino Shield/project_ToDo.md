@@ -1,10 +1,5 @@
 # To‑Do List — Atividade Prática: Desafio do Desativador de Bombas
 _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shield-multi-funcoes-para-arduino/)_
-- [ ] **Configurar hardware**
-  - [ ] Conectar Multi-function Shield ao Arduino  
-  - [ ] Verificar ligação de S1, S2, S3, potenciômetro, 4 LEDs, buzzer e display de 7 segmentos  
-  - [ ] Testar leitura analógica do potenciômetro e saída para display/buzzer
-
 - [X] **Ler e mapear tempo inicial**
   - [X] Ler valor do trimpot na inicialização  
   - [X] Mapear para intervalo **10–90 segundos**  
@@ -16,17 +11,20 @@ _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shi
   - [X] Armazenar sequência em buffer interno
 
 - [ ] **Preparar lógica de início**
-  - [ ] Aguardar primeiro pressionamento de qualquer botão (S1/S2/S3)  
-  - [ ] Ao primeiro pressionamento, exibir **"GO"** brevemente no display  
-  - [ ] Iniciar contagem regressiva a partir do tempo mapeado
+  - [X] Aguardar primeiro pressionamento de qualquer botão (S1/S2/S3)  
+  - [X] Ao primeiro pressionamento, exibir **"GO"** brevemente no display  
+  - [X] Iniciar contagem regressiva a partir do tempo mapeado
 
-- [ ] **Implementar leitura de botões e verificação de sequência**
-  - [ ] Detectar pressionamentos (com debounce)  
+- [ ] **Implementar leitura de botões e verificação de sequência**   <------
+  - [ ] Detectar pressionamentos
+  - [ ] Função chegar senha
+  - [ ] Função got_right_wrong
   - [ ] Comparar cada entrada com o valor esperado na sequência  
-  - [ ] Incrementar contador de acertos por tentativa quando correto  
-  - [ ] Atualizar LEDs em formato binário mostrando acertos acumulados na tentativa atual
+  - [X] Incrementar contador de acertos por tentativa quando correto  
+  - [X] Atualizar LEDs em formato binário mostrando acertos acumulados na tentativa atual
+    - [ ] Definir pinos dos LEDs
 
-- [ ] **Lidar com erro na sequência**
+- [X] **Lidar com erro na sequência**
   - [X] Ao erro, reiniciar índice da tentativa (voltar ao início da sequência atual)  
   - [ ] Aumentar velocidade do cronômetro em **5%** (ajustar frequência de atualização do timer)  
   - [X] Manter feedback visual dos LEDs
@@ -56,4 +54,3 @@ _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shi
   - [ ] Comentar funções principais (inicialização, leitura, verificação, timer, alarms)  
   - [ ] Incluir instruções de uso e esquema de conexões  
   - [ ] Incluir sugestão de ajustes (debounce, taxa de aumento de 5%)
-
