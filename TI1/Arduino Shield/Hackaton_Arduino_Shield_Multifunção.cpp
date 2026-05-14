@@ -10,6 +10,9 @@ int password[8];
 volatile bool TimeOver = false;
 volatile bool gotright = false;
 volatile bool gotwrong = false;
+int read; // ler potenciometro
+int time;
+float delay;
 const int pin_SW1 = A1; //pin do botao 1
 const int pin_SW2 = A2; //pin do botao 2
 const int pin_SW3 = A3; //pin do botao 3
@@ -31,6 +34,10 @@ void countdown(int time) {
     TimeOver = true;
     Timer.stop(); // Para o timer quando chegar a zero
   }
+}
+float delay(){
+  float delay = 100;
+  return delay;
 }
 void visual_feedback(int right) {
   switch (right){
@@ -57,9 +64,7 @@ void visual_feedback(int right) {
   }
 
 }
-void buzzer(){
-//  const int buzzerPin = 3;
-//  const int sensorPin = A0; 
+void buzzer(){ 
   unsigned long previousMillis = 0;
   const long interval = 100;
   int buzzerState = LOW;
@@ -76,12 +81,12 @@ void buzzer(){
 
 void setup(){
   password = passwd(password);
-  int read = analogRead(A0); // lendo potenciometro
-  int time = map(read, 0, 1023, 10, 90);
+  read = analogRead(A0); // lendo potenciometro
+  time = map(read, 0, 1023, 10, 90);
   MFS.write((int)time);
+  Timer1.initialize(time);  // Define o intervalo para 90 segundos
+  MFS.initialize(&Timer1); // inicializa a biblioteca
   if (SW1 == LOW || SW2 == LOW || SW3 == LOW){  //botao1, botao2 ou botao3 ---> pressinou
-    Timer1.initialize(time);  // Define o intervalo para 90 segundos
-    MFS.initialize(&Timer1); // inicializa a biblioteca
     MFS.write("GO");
   }
   serial.begin(9600);
@@ -101,7 +106,7 @@ void loop(){
   }
   else if (gotwrong == true){
     right = 0;
-    Timer1 *= 1.05;
+    delay = delay()*0.95;
     MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
   }
   else if (right == 8){
@@ -110,4 +115,5 @@ void loop(){
     MFS.beep(6,4,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
     while(1); // Para o programa
   }
+  delay(atraso);
 }
