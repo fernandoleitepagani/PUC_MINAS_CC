@@ -7,7 +7,6 @@
 
 /*-------------Globais--------------*/
 int password[8];
-// volatile int segundos = 10; 
 volatile bool TimeOver = false;
 volatile bool gotright = false;
 volatile bool gotwrong = false;
@@ -42,33 +41,25 @@ void countdown(int time) {
 void visual_feedback(int right) {
   switch (right){
     case 1:
-      state_bt1 = high;
+      MFS.writeLeds(LED_1, ON);
     case 2:
-      state_bt1 = LOW
-      state_bt2 = high;
+      MFS.writeLeds(LED-1, OFF);
+      MFS.writeLeds(LED_2, ON);
     case 3:
-      state_bt1 = high;
-      state_bt2 = high;
+      MFS.writeLeds(LED_1 | LED_2, ON);
     case 4:
-      state_bt1 = LOW
-      state_bt2 = LOW
-      state_bt3 = high;
+      MFS.writeLeds(LED_1 | LED_2, OFF);
+      MFS.writeLeds(LED_3, ON);
     case 5:
-      state_bt1 = high;
-      state_bt3 = high;
+      MFS.writeLeds(LED_1 | LED_3, ON);
     case 6:
-      state_bt1 = LOW
-      state_bt2 = high;
-      state_bt3 = high;
+      MFS.writeLeds(LED_1, OFF);
+      MFS.writeLeds(LED_2 | LED_3, ON);
     case 7:
-      state_bt1 = high;
-      state_bt2 = high;
-      state_bt3 = high;
+      MFS.writeLeds(LED_1 | LED_2 | LED_3, ON);
     case 8:
-      state_bt1 = LOW;
-      state_bt2 = LOW;
-      state_bt3 = LOW;
-      state_bt4 = high;
+      MFS.writeLeds(LED_1 | LED_2 | LED_3, OFF);
+      MFS.writeLeds(LED_4, ON);
   }
 
 }
