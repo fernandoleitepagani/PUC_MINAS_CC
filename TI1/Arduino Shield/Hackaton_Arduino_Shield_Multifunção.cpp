@@ -1,8 +1,8 @@
 #include <TimerOne.h>
 #include <Wire.h>
 #include <MultiFuncShield.h>
-#include <cstdlib.h>
-#include <ctime.h>
+#include <stdlib.h>
+#include <time.h>
 
 /*-------------Globais--------------*/
 int password[8];
@@ -10,31 +10,32 @@ volatile bool TimeOver = false;
 volatile bool gotright = false;
 volatile bool gotwrong = false;
 int read; // ler potenciometro
-int time;
-float delay;
+int time1;
+int right = 0;
+float delay1;
 const int pin_SW1 = A1; //pin do botao 1
 const int pin_SW2 = A2; //pin do botao 2
 const int pin_SW3 = A3; //pin do botao 3
 /*-------------Funcoes---------------*/
-void passwd(int passwd){
+void passwd(){
   srand(time(0));
-  for (i=0;i<8;i++){
+  for (int i=0;i<8;i++){
     int num = (rand()%3) + 1;
-    passwd[i] = num;
+    password[i] = num;
   }
-  return passwd;
+  return password;
 }
 void countdown(int time1) {
   if (time1 > 10) {
-    MFS.write((int) time1)
+    MFS.write((int) time1);
     time1--;  //contagem regressiva
   } 
   else {
     TimeOver = true;
-    Timer.stop(); // Para o timer quando chegar a zero
+    Timer1.stop(); // Para o timer quando chegar a zero
   }
 }
-float delay(){
+float delayfunction(){
   float delay = 100;
   return delay;
 }
@@ -66,42 +67,42 @@ void visual_feedback(int right) {
 void buzzer(){ 
   if (time1 <= 18 && time1 > 10) { // 18 para 10
     MFS.beep(10, // 100ms
-             90) // silencio por 900ms
+             90); // silencio por 900ms
   }
   else if(time1 <= 10) { // 10 para 0
     MFS.beep(100); // Beep por 1s
   }
+}
 /*---------------Inicializacao---------------*/
 
 void setup(){
-  password = passwd(password);
+  passwd();
   read = analogRead(A0); // lendo potenciometro
   time1 = map(read, 0, 1023, 10, 90);
   MFS.write((int)time1);
   Timer1.initialize(time1);  // Define o intervalo para 90 segundos
   MFS.initialize(&Timer1); // inicializa a biblioteca
-  if (SW1 == LOW || SW2 == LOW || SW3 == LOW){  //botao1, botao2 ou botao3 ---> pressinou
-    serial.begin(9600);
-    MFS.write("GO");
-  }
+  // if (SW1 == LOW || SW2 == LOW || SW3 == LOW){  //botao1, botao2 ou botao3 ---> pressinou
+  Serial.begin(9600);
+  MFS.write("GO");
 }
 
-void loop(){
+void loop()
+{
   buzzer();
   countdown(time1); //time1--
-  delay = delay();
+  delay1 = delayfunction();
   if (TimeOver == true) {
     MFS.write("0000");
     while(1); // Para o programa
   }
-  int right = 0;
   if (gotright == true){
     right++;
     visual_feedback(right);
   }
   else if (gotwrong == true){
     right = 0;
-    delay = delay()*0.95;
+    delay1 = delayfunction()*0.95;
     MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
   }
   else if (right == 8){
@@ -110,5 +111,5 @@ void loop(){
     MFS.beep(6,4,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
     while(1); // Para o programa
   }
-  delay(delay);
+  delay(delay1);
 }
