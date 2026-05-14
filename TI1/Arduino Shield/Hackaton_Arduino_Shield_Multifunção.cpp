@@ -32,12 +32,6 @@ void countdown(int time) {
     Timer.stop(); // Para o timer quando chegar a zero
   }
 }
-//void got_right_wrong(){
-//  if got right
-//    gotright == true;
-//  else
-//    gotwrong == true
-//}
 void visual_feedback(int right) {
   switch (right){
     case 1:
@@ -64,38 +58,20 @@ void visual_feedback(int right) {
 
 }
 void buzzer(){
-  const int buzzerPin = 3;
-  const int sensorPin = A0; 
+//  const int buzzerPin = 3;
+//  const int sensorPin = A0; 
   unsigned long previousMillis = 0;
   const long interval = 100;
   int buzzerState = LOW;
   unsigned long currentMillis = millis(); // o que kcts é millis()
   
- if (time <= 18 && time > 10) { // 18 para 10
-    
-    if (currentMillis - previousMillis >= interval) {
-      previousMillis = currentMillis;
-
-      if (buzzerState == LOW) {
-        buzzerState = HIGH;
-      } 
-      else {
-        buzzerState = LOW;
-      }
-      digitalWrite(buzzerPin, buzzerState);
-    }
-  } 
-  else if(timer <= 10) { // 10 para 0
-    MFS.beep(1000);
-  //digitalWrite(buzzerPin, HIGH);
-  //buzzerState = HIGH;
+  if (time <= 18 && time > 10) { // 18 para 10
+    MFS.beep(10, // 100ms
+             90) // silencio por 900ms
   }
-//  else{
-//    digitalWrite(buzzerPin, LOW);
-//    buzzerState = LOW; 
-//  }
-}
-
+  else if(timer <= 10) { // 10 para 0
+    MFS.beep(100); // Beep por 1s
+  }
 /*---------------Inicializacao---------------*/
 
 void setup(){
@@ -126,10 +102,7 @@ void loop(){
   else if (gotwrong == true){
     right = 0;
     Timer1 *= 1.05;
-    state_bt1 = LOW;
-    state_bt2 = LOW;
-    state_bt3 = LOW;
-    state_bt4 = LOW;
+    MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
   }
   else if (right == 8){
     Timer1.stop();

@@ -22,7 +22,7 @@ _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shi
   - [ ] Comparar cada entrada com o valor esperado na sequência  
   - [X] Incrementar contador de acertos por tentativa quando correto  
   - [X] Atualizar LEDs em formato binário mostrando acertos acumulados na tentativa atual
-    - [ ] Definir pinos dos LEDs
+    - [X] Definir pinos dos LEDs
 
 - [X] **Lidar com erro na sequência**
   - [X] Ao erro, reiniciar índice da tentativa (voltar ao início da sequência atual)  
@@ -39,9 +39,9 @@ _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shi
   - [X] Exibir **"OFF"** no display  
   - [X] Emitir **3 bipes** de confirmação pelo buzzer
 
-- [ ] **Sincronização / reinício (opcional)**
-  - [ ] Permitir reinício manual (botão dedicado ou reset)  
-  - [ ] Restaurar tempo e gerar nova sequência ao reiniciar
+- [X] **Sincronização / reinício (opcional)**
+  - [X] Permitir reinício manual (botão dedicado ou reset)  
+  - [X] Restaurar tempo e gerar nova sequência ao reiniciar
 
 - [ ] **Testes e validação**
   - [ ] Testar vários tempos do potenciômetro (10–90 s)  
