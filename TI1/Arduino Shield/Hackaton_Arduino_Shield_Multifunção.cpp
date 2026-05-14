@@ -6,7 +6,6 @@
 #include <ctime.h>
 
 /*-------------Globais--------------*/
-volatile bool gotright;
 int password[8];
 // volatile int segundos = 10; 
 volatile bool TimeOver = false;
@@ -79,9 +78,9 @@ void buzzer(){
   unsigned long previousMillis = 0;
   const long interval = 100;
   int buzzerState = LOW;
-  unsigned long currentMillis = millis();
+  unsigned long currentMillis = millis(); // o que kcts é millis()
   
- if (timer >= 18 && timer <= 10) {
+ if (time <= 18 && time > 10) { // 18 para 10
     
     if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
@@ -95,14 +94,15 @@ void buzzer(){
       digitalWrite(buzzerPin, buzzerState);
     }
   } 
-  else if(timer < 10) {
-  digitalWrite(buzzerPin, HIGH);
-  buzzerState = HIGH;
+  else if(timer <= 10) { // 10 para 0
+    MFS.beep(1000);
+  //digitalWrite(buzzerPin, HIGH);
+  //buzzerState = HIGH;
   }
-  else{
-    digitalWrite(buzzerPin, LOW);
-    buzzerState = LOW; 
-  }
+//  else{
+//    digitalWrite(buzzerPin, LOW);
+//    buzzerState = LOW; 
+//  }
 }
 
 /*---------------Inicializacao---------------*/
@@ -113,21 +113,18 @@ void setup(){
   int time = map(read, 0, 1023, 10, 90);
   MFS.write((int)time);
   if (SW1 == LOW || SW2 == LOW || SW3 == LOW){  //botao1, botao2 ou botao3 ---> pressinou
-    Timer1.initialize(time);         // Define o intervalo para 90 segundos
-    MFS.initialize(&Timer1); // incializa a biblioteca
-    Serial.begin(9600);
+    Timer1.initialize(time);  // Define o intervalo para 90 segundos
+    MFS.initialize(&Timer1); // inicializa a biblioteca
+    MFS.write("GO");
   }
+  serial.begin(9600);
 }
 
 void loop(){
   buzzer();
-  countdown(time); //time-- 
-  while (time > 87){
-    MFS.write("GO!");
-  }
-  MFS.writeln(segundos);  
+  countdown(time); //time--
   if (TimeOver == true) {
-    MFS.writeln("BOOM");
+    MFS.write("0000");
     while(1); // Para o programa
   }
   int right = 0;
@@ -143,6 +140,10 @@ void loop(){
     state_bt3 = LOW;
     state_bt4 = LOW;
   }
+  else if (right == 8){
+    Timer1.stop();
+    MFS.write("OFF");
+    MFS.beep(6,4,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
+    while(1); // Para o programa
+  }
 }
-//cowabunga
-// yip yip big yahu
