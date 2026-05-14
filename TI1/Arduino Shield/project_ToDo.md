@@ -5,7 +5,7 @@ _Checar manual [Shield Arduino](https://blog.eletrogate.com/guia-completo-do-shi
   - [X] Mapear para intervalo **10–90 segundos**  
   - [X] Mostrar tempo mapeado no display de 7 segmentos
 
-- [X] **Gerar senha aleatória**
+- [ ] **Gerar senha aleatória**
   - [X] Ao reset, inicializar gerador de números aleatórios (seed)  
   - [X] Gerar sequência de **8** valores entre **1** e **3**  
   - [X] Armazenar sequência em buffer interno

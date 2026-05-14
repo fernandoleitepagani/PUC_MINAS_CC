@@ -1,7 +1,6 @@
 #include <TimerOne.h>
 #include <Wire.h>
 #include <MultiFuncShield.h>
-#include <iostream.h>
 #include <cstdlib.h>
 #include <ctime.h>
 
@@ -25,10 +24,10 @@ void passwd(int passwd){
   }
   return passwd;
 }
-void countdown(int time) {
-  if (time > 10) {
-    MFS.write((int) time)
-    time--;  //contagem regressiva
+void countdown(int time1) {
+  if (time1 > 10) {
+    MFS.write((int) time1)
+    time1--;  //contagem regressiva
   } 
   else {
     TimeOver = true;
@@ -44,7 +43,7 @@ void visual_feedback(int right) {
     case 1:
       MFS.writeLeds(LED_1, ON);
     case 2:
-      MFS.writeLeds(LED-1, OFF);
+      MFS.writeLeds(LED_1, OFF);
       MFS.writeLeds(LED_2, ON);
     case 3:
       MFS.writeLeds(LED_1 | LED_2, ON);
@@ -65,16 +64,11 @@ void visual_feedback(int right) {
 
 }
 void buzzer(){ 
-  unsigned long previousMillis = 0;
-  const long interval = 100;
-  int buzzerState = LOW;
-  unsigned long currentMillis = millis(); // o que kcts é millis()
-  
-  if (time <= 18 && time > 10) { // 18 para 10
+  if (time1 <= 18 && time1 > 10) { // 18 para 10
     MFS.beep(10, // 100ms
              90) // silencio por 900ms
   }
-  else if(timer <= 10) { // 10 para 0
+  else if(time1 <= 10) { // 10 para 0
     MFS.beep(100); // Beep por 1s
   }
 /*---------------Inicializacao---------------*/
@@ -82,19 +76,20 @@ void buzzer(){
 void setup(){
   password = passwd(password);
   read = analogRead(A0); // lendo potenciometro
-  time = map(read, 0, 1023, 10, 90);
-  MFS.write((int)time);
-  Timer1.initialize(time);  // Define o intervalo para 90 segundos
+  time1 = map(read, 0, 1023, 10, 90);
+  MFS.write((int)time1);
+  Timer1.initialize(time1);  // Define o intervalo para 90 segundos
   MFS.initialize(&Timer1); // inicializa a biblioteca
   if (SW1 == LOW || SW2 == LOW || SW3 == LOW){  //botao1, botao2 ou botao3 ---> pressinou
+    serial.begin(9600);
     MFS.write("GO");
   }
-  serial.begin(9600);
 }
 
 void loop(){
   buzzer();
-  countdown(time); //time--
+  countdown(time1); //time1--
+  delay = delay();
   if (TimeOver == true) {
     MFS.write("0000");
     while(1); // Para o programa
@@ -115,5 +110,5 @@ void loop(){
     MFS.beep(6,4,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
     while(1); // Para o programa
   }
-  delay(atraso);
+  delay(delay);
 }
