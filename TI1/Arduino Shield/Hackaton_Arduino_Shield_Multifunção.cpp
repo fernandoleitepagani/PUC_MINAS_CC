@@ -13,9 +13,9 @@ int read; // ler potenciometro
 int time1;
 int right = 0;
 float delay1;
-const int pin_SW1 = A1; //pin do botao 1
-const int pin_SW2 = A2; //pin do botao 2
-const int pin_SW3 = A3; //pin do botao 3
+//const int pin_SW1 = A1; //pin do botao 1
+//const int pin_SW2 = A2; //pin do botao 2
+//const int pin_SW3 = A3; //pin do botao 3
 /*-------------Funcoes---------------*/
 void passwd(){
   srand(time(0));
@@ -35,7 +35,7 @@ void countdown(int time1) {
     Timer1.stop(); // Para o timer quando chegar a zero
   }
 }
-float delayfunction(){
+float delay_function(){
   float delay = 100;
   return delay;
 }
@@ -73,6 +73,44 @@ void buzzer(){
     MFS.beep(100); // Beep por 1s
   }
 }
+void check_buttons() {
+  int buttonvalue = 0;
+
+  // Lê qual botão foi pressionado
+  if (MFS.getButton() == BUTTON_1_PRESSED) {
+    buttonvalue = 1;
+  } else if (MFS.getButton() == BUTTON_2_PRESSED) {
+    buttonvalue = 2;
+  } else if (MFS.getButton() == BUTTON_3_PRESSED) {
+    buttonvalue = 3;
+  } else {
+    return; // nenhum botão pressionado, sai da função
+  }
+  
+  // Compara o botão pressionado com cada posição da senha
+  for (int i = 0; i < 8; i++) {
+    if (buttonvalue == password[i]) {
+      gotright = true;
+      gotwrong = false;
+      right++;
+      visual_feedback(right);
+    } else {
+      gotwrong = true;
+      gotright = false;
+      i = 0;
+      right = 0;
+      delay1 = delay_function()*0.95;
+      MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+    }
+    break; // compara apenas a posição atual e para
+  }
+  if (right == 8){
+    Timer1.stop();
+    MFS.write("OFF");
+    MFS.beep(6,4,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
+    while(1); // Para o programa
+  }
+}
 /*---------------Inicializacao---------------*/
 
 void setup(){
@@ -91,24 +129,10 @@ void loop()
 {
   buzzer();
   countdown(time1); //time1--
-  delay1 = delayfunction();
+  delay1 = delay_function();
+  check_buttons();
   if (TimeOver == true) {
     MFS.write("0000");
-    while(1); // Para o programa
-  }
-  if (gotright == true){
-    right++;
-    visual_feedback(right);
-  }
-  else if (gotwrong == true){
-    right = 0;
-    delay1 = delayfunction()*0.95;
-    MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
-  }
-  else if (right == 8){
-    Timer1.stop();
-    MFS.write("OFF");
-    MFS.beep(6,4,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
     while(1); // Para o programa
   }
   delay(delay1);
