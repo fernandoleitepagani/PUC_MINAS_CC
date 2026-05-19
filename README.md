@@ -1,3 +1,7 @@
+!<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/91629a44-db78-4295-976b-423536a32ded" />
+
+
+
 # Repositório de Projetos — Curso de Ciência da Computação
 Repositório de projetos realizados enquanto matriculado no curso de computação da PUC Minas
 ## Objetivo
