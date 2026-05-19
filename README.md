@@ -1,4 +1,4 @@
-!<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/91629a44-db78-4295-976b-423536a32ded" />
+<img width="1600" height="720" alt="image" src="https://github.com/user-attachments/assets/91629a44-db78-4295-976b-423536a32ded" />
 
 
 
