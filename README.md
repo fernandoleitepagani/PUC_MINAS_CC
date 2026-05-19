@@ -1,5 +1,5 @@
-<img width="1600" height="720" alt="image" src="https://github.com/user-attachments/assets/91629a44-db78-4295-976b-423536a32ded" />
-
+<img width="900" height="690" alt="image" src="https://github.com/user-attachments/assets/91629a44-db78-4295-976b-423536a32ded" />
+**O repositório não de nenhuma forma relacioando a instituição da PUC MINAS ou PUC BRASIL, se tratando somente de um repositório pessoal para acompanhar o progresso educacinal e profissional dentro do curso**
 
 
 # Repositório de Projetos — Curso de Ciência da Computação
