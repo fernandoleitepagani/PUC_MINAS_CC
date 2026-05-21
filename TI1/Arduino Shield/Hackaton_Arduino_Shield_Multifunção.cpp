@@ -7,133 +7,160 @@
 /*-------------Globais--------------*/
 int password[8];
 volatile bool TimeOver = false;
-volatile bool gotright = false;
-volatile bool gotwrong = false;
-int read; // ler potenciometro
+int read_pot;
 int time1;
-int right = 0;
 float delay1;
-//const int pin_SW1 = A1; //pin do botao 1
-//const int pin_SW2 = A2; //pin do botao 2
-//const int pin_SW3 = A3; //pin do botao 3
-/*-------------Funcoes---------------*/
-void passwd(){
-  srand(time(0));
-  for (int i=0;i<8;i++){
-    int num = (rand()%3) + 1;
-    password[i] = num;
+int right = 0;
+int sequenceIndex = 0;
+bool gameStarted = false; // jogo só inicia quando um botão for pressionado
+
+/*-------------Funções---------------*/
+
+// FIX #4: removido "return password" de função void — array global é preenchido diretamente
+void passwd() {
+  srand(analogRead(A0)); // usa leitura analógica como semente (mais confiável no Arduino)
+  for (int i = 0; i < 8; i++) {
+    password[i] = (rand() % 3) + 1;
   }
-  return password;
 }
-void countdown(int time1) {
-  if (time1 > 10) {
-    MFS.write((int) time1);
-    time1--;  //contagem regressiva
-  } 
-  else {
+
+// FIX #3: countdown agora opera diretamente na variável global time1 (sem parâmetro)
+void countdown() {
+  if (time1 > 0) {
+    MFS.write(time1);
+    time1--;
+  } else {
     TimeOver = true;
-    Timer1.stop(); // Para o timer quando chegar a zero
+    Timer1.stop();
   }
 }
-float delay_function(){
-  float delay = 100;
-  return delay;
-}
+
+// FIX #5: adicionado break em cada case para evitar fall-through
 void visual_feedback(int right) {
-  switch (right){
+  switch (right) {
     case 1:
       MFS.writeLeds(LED_1, ON);
+      break;
     case 2:
       MFS.writeLeds(LED_1, OFF);
       MFS.writeLeds(LED_2, ON);
+      break;
     case 3:
       MFS.writeLeds(LED_1 | LED_2, ON);
+      break;
     case 4:
       MFS.writeLeds(LED_1 | LED_2, OFF);
       MFS.writeLeds(LED_3, ON);
+      break;
     case 5:
       MFS.writeLeds(LED_1 | LED_3, ON);
+      break;
     case 6:
       MFS.writeLeds(LED_1, OFF);
       MFS.writeLeds(LED_2 | LED_3, ON);
+      break;
     case 7:
       MFS.writeLeds(LED_1 | LED_2 | LED_3, ON);
+      break;
     case 8:
       MFS.writeLeds(LED_1 | LED_2 | LED_3, OFF);
       MFS.writeLeds(LED_4, ON);
+      break;
   }
+}
 
-}
-void buzzer(){ 
-  if (time1 <= 18 && time1 > 10) { // 18 para 10
-    MFS.beep(10, // 100ms
-             90); // silencio por 900ms
-  }
-  else if(time1 <= 10) { // 10 para 0
-    MFS.beep(100); // Beep por 1s
+void buzzer() {
+  if (time1 <= 18 && time1 > 10) {
+    MFS.beep(10, 90); // beep de 100ms, silêncio de 900ms
+  } else if (time1 <= 10 && time1 > 0) {
+    MFS.beep(100); // beep de 1s
   }
 }
+
+// FIX #6: lógica de sequência corrigida com índice persistente
 void check_buttons() {
   int buttonvalue = 0;
 
-  // Lê qual botão foi pressionado
-  if (MFS.getButton() == BUTTON_1_PRESSED) {
+  // FIX #7: guardar getButton() numa variável — chamar múltiplas vezes consome o evento
+  byte btn = MFS.getButton();
+
+  // Aguarda primeiro botão para iniciar o jogo
+  if (!gameStarted) {
+    if (btn == BUTTON_1_PRESSED || btn == BUTTON_2_PRESSED || btn == BUTTON_3_PRESSED) {
+      gameStarted = true;
+      MFS.write("GO");  // exibe "GO" brevemente
+      delay(1000);      // mantém por 1 segundo
+      MFS.write(time1); // mostra o tempo e começa a contagem
+    }
+    return; // não processa sequência ainda
+  }
+
+  if (btn == BUTTON_1_PRESSED) {
     buttonvalue = 1;
-  } else if (MFS.getButton() == BUTTON_2_PRESSED) {
+  } else if (btn == BUTTON_2_PRESSED) {
     buttonvalue = 2;
-  } else if (MFS.getButton() == BUTTON_3_PRESSED) {
+  } else if (btn == BUTTON_3_PRESSED) {
     buttonvalue = 3;
   } else {
-    return; // nenhum botão pressionado, sai da função
+    return; // nenhum botão pressionado
   }
-  
-  // Compara o botão pressionado com cada posição da senha
-  for (int i = 0; i < 8; i++) {
-    if (buttonvalue == password[i]) {
-      gotright = true;
-      gotwrong = false;
-      right++;
-      visual_feedback(right);
-    } else {
-      gotwrong = true;
-      gotright = false;
-      i = 0;
-      right = 0;
-      delay1 = delay_function()*0.95;
-      MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
-    }
-    break; // compara apenas a posição atual e para
+
+  if (buttonvalue == password[sequenceIndex]) {
+    // Acertou a posição atual da sequência
+    sequenceIndex++;
+    right++;
+    visual_feedback(right);
+  } else {
+    // Errou — reinicia sequência, LEDs e acelera o timer em 5%
+    sequenceIndex = 0;
+    right = 0;
+    delay1 *= 0.95;
+    MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
   }
-  if (right == 8){
+
+  // Verificação de vitória
+  if (right == 8) {
     Timer1.stop();
-    MFS.write("OFF");
-    MFS.beep(6,4,3); //buzzer beep por 50ms, silencio por 0ms, repete 3 vezes
-    while(1); // Para o programa
+    MFS.write("GG");
+    MFS.beep(6, 4, 3); // beep 50ms, silêncio 0ms, 3 vezes
+    while (1); // trava o programa
   }
 }
-/*---------------Inicializacao---------------*/
 
-void setup(){
-  passwd();
-  read = analogRead(A0); // lendo potenciometro
-  time1 = map(read, 0, 1023, 10, 90);
-  MFS.write((int)time1);
-  Timer1.initialize(time1);  // Define o intervalo para 90 segundos
-  MFS.initialize(&Timer1); // inicializa a biblioteca
-  // if (SW1 == LOW || SW2 == LOW || SW3 == LOW){  //botao1, botao2 ou botao3 ---> pressinou
+/*---------------Inicialização---------------*/
+void setup() {
   Serial.begin(9600);
-  MFS.write("GO");
+
+  passwd(); // gera a senha
+
+  read_pot = analogRead(A0);
+  time1 = map(read_pot, 0, 1023, 10, 90); // tempo entre 10s e 90s
+
+  // FIX #1: Timer1 recebe microssegundos — multiplicar por 1.000.000
+  // FIX #2: MFS.initialize() chamado ANTES de qualquer MFS.write()
+  Timer1.initialize((long)time1 * 1000000UL);
+  MFS.initialize(&Timer1); // inicializa a biblioteca primeiro
+
+  delay1 = 1000.0; // delay inicial: 1 segundo por tick do countdown
+  MFS.write("----"); // aguardando início — exibe traços até botão ser pressionado
 }
 
-void loop()
-{
-  buzzer();
-  countdown(time1); //time1--
-  delay1 = delay_function();
-  check_buttons();
-  if (TimeOver == true) {
+/*---------------Loop Principal---------------*/
+void loop() {
+  if (TimeOver) {
     MFS.write("0000");
-    while(1); // Para o programa
+    while (1); // trava o programa
   }
-  delay(delay1);
+
+  check_buttons();
+
+  if (!gameStarted) {
+    delay((int)delay1);
+    return; // não faz countdown nem buzzer enquanto aguarda início
+  }
+
+  buzzer();
+  countdown();
+
+  delay((int)delay1);
 }
