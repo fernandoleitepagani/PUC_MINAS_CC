@@ -1,0 +1,89 @@
+#include <EEPROM.h>
+#include <LiquidCrystal.h>
+
+//declaração de variáveis
+const float aref_volt = 3.3; //voltagem
+const int oxygenSensorPin = A3; // pin analogico para sensor O2
+float oxygenLevel = 0;
+int tempPin = A1;
+float calibrate_air;
+float read_temp;
+const int rs =13,en = 12,d4 =11,d5 =10,d6 =9,d7 =8;
+LiquidCrystal lcd(rs,en, d4,d5,d6,d7);
+int Contrast = 0;
+
+
+void calibrate(){
+  float sum = 0
+  Serial.println("Calibrando no ar...");
+  for (int i = 0; i<10 ; i++)
+    {
+      sum += (analogRead(A3)* 5000 / 1024.0);
+      delay(100);
+    }
+  calibrate_air = sum / 10.0;
+  EEPROM.put(0, calibrate_air);
+  Serial.println("-- Calibracao salva! --");
+}
+
+void oxygenLevel(){
+    int sensorValue = 0;
+    sensorValue = analogRead(oxygenSensorPin);   //Ler o potenciometro (0-1023)           
+    float oxygenLevel = (sensorValue / 1023.0) * 100.0; // Converte leitura analogica para porcentagem
+    //Output to Serial Monitor
+    Serial.print("Nivel oxigenio: ");
+    Serial.print(oxygenLevel);
+    Serial.println("%");
+}
+
+float volt(float read_x){
+    float volt = (read_x*aref_volt) / 1024.0; //DO NOT TOUCH GUSTAVO!
+    return volt;
+}
+void temp(){
+    read_temp = analogRead(tempPin);
+    Serial.print("Lendo temperatura... ");
+    Serial.print(read_temp);
+
+    //convertendo a leitura para voltagem que é baseado no valor referência da voltagem
+    float volt = volt(read_temp);
+    //imprime a voltagem
+    Serial.print(" - ");
+    Serial.print(volt);
+    Serial.println("volts");
+    //imprime a tempreratura
+    float tempC = (volt - 0.5) *  100;
+    Serial.print(tempC);
+    Serial.println("graus Celsius");
+    
+
+    delay(1000)
+}
+
+void pH(){
+   int sensorValue = analogRead(A0);
+   float ph = sensorValue * (14.0/1023.0);
+   Serial.println(ph);
+   lcd.setCursor(6,1);
+   lcd.print (ph);
+}
+
+void setup(){
+   analogWrite (6,Contrast);
+    lcd.begin(16,2);
+    lcd.setCursor(4,0);
+    lcd.print("pH Value:");
+    analogReference(EXTERNAL);
+    pinMode(A1, INPUT);
+    pinMode(A4, INPUT)
+    Serial.begin(9600);
+    EEPROM.get(0, calibrate_air);
+    if (isnan(calibrate_air) || calibrate_air <=0) calibrate_air = 1600.0;
+}
+
+void loop()
+{
+  pH();
+  temp();
+  oxygenLevel();
+}
