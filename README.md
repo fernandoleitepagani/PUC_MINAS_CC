@@ -1,7 +1,12 @@
-<img width="1600" height="480" alt="image" src="https://github.com/user-attachments/assets/91629a44-db78-4295-976b-423536a32ded" />
+██████╗ ██╗   ██╗ ██████╗     ███╗   ███╗██╗███╗   ██╗ █████╗ ███████╗
+██╔══██╗██║   ██║██╔════╝     ████╗ ████║██║████╗  ██║██╔══██╗██╔════╝
+██████╔╝██║   ██║██║  ███╗    ██╔████╔██║██║██╔██╗ ██║███████║███████╗
+██╔═══╝ ██║   ██║██║   ██║    ██║╚██╔╝██║██║██║╚██╗██║██╔══██║╚════██║
+██║     ╚██████╔╝╚██████╔╝    ██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████║
+╚═╝      ╚═════╝  ╚═════╝     ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
+________
 
-**O repositório não de nenhuma forma relacioando a instituição da PUC MINAS ou PUC BRASIL, se tratando somente de um repositório pessoal para acompanhar o progresso educacinal e profissional dentro do curso**
-
+**O repositório não é de nenhuma forma relacionado a instituição da PUC MINAS ou PUC BRASIL, se tratando somente de um repositório pessoal para acompanhar o progresso educacional e profissional dentro do curso**
 
 # Repositório de Projetos — Curso de Ciência da Computação
 Repositório de projetos realizados enquanto matriculado no curso de computação da PUC Minas
