@@ -1,7 +1,5 @@
-╔════════════════════════════════════════════════════════════╗
-║                      PUC MINAS                             ║
-╚════════════════════════════════════════════════════════════╝
-________
+# PUC MINAS
+
 
 **O repositório não é de nenhuma forma relacionado a instituição da PUC MINAS ou PUC BRASIL, se tratando somente de um repositório pessoal para acompanhar o progresso educacional e profissional dentro do curso**
 
