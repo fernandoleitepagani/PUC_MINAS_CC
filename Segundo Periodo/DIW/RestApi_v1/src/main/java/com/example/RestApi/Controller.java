@@ -14,5 +14,4 @@ public class Controller {
 	public String diaw() {
         return "Esse é meu segundo endpoint";
 	}
-
 }
