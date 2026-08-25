@@ -1,0 +1,13 @@
+- [x] **Ciframento de César**
+- [ ] **Alteração Aleatória**
+- [ ] **Is**
+- [ ] **Inversão de String**
+- [x] **Soma de Dígitos**
+- [ ] **Verificação de Anagrama**
+- [ ] **Substring Mais Longa Sem Repetição**
+- [ ] **Validação de Senha**
+- [ ] **Ciframento de César (RECURSIVO)**
+- [ ] **Is (RECURSIVO)**
+- [ ] **Inversão de String (RECURSIVO)**
+- [ ] **Soma de Dígitos (RECURSIVO)**
+
