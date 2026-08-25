@@ -1,21 +1,16 @@
 import java.util.Random;
 import java.util.Scanner;
 
-/**
- * TP1 - Questao 2: Alteracao Aleatoria (iterativo).
- * Random e atributo estatico (seed=4, setada 1x) para que o sorteio
- * avance a cada linha e a correcao automatica seja reprodutivel.
- */
 public class AlteracaoAleatoria {
 
     private static Random gerador = new Random();
 
-    /** Sorteia uma letra minuscula ('a'-'z'). */
+    /** Sorteia uma letra minuscula */
     private static char sortearLetra() {
         return (char) ('a' + (Math.abs(gerador.nextInt()) % 26));
     }
 
-    /** Sorteia 2 letras e troca a 1a pela 2a na string, retornando o resultado. */
+    /** Sorteia 2 letras e troca a 1 pela 2 na string */
     public static String alterar(String s) {
         char letraOrigem = sortearLetra();
         char letraDestino = sortearLetra();
@@ -32,7 +27,7 @@ public class AlteracaoAleatoria {
         return resultado;
     }
 
-    /** Verifica se a linha lida e o marcador "FIM". */
+    /** Verifica se a linha lida eh o marcador "FIM". */
     private static boolean isFim(String linha) {
         boolean resp = true;
         if (linha.length() != 3) {
@@ -43,7 +38,7 @@ public class AlteracaoAleatoria {
         return resp;
     }
 
-    /** Fixa seed=4, le linhas ate "FIM"/fim da entrada e imprime cada uma alterada. */
+    /** Fixa seed=4, le linhas ate "FIM" - imprime cada as alteradas. */
     public static void main(String[] args) {
         gerador.setSeed(4);
         Scanner scanner = new Scanner(System.in);
