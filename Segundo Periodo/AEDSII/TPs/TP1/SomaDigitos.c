@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+// retorna a soma dos dígitos
 int sum(int scanned){
     int soma=0;
     while(scanned!=0){ soma += scanned%10; scanned/=10; }
@@ -7,9 +8,10 @@ int sum(int scanned){
 }
 
 int main(){
-     /**variável do num recebido*/
+    //Le numero escaneado
     int scan; 
-    //int first=1; /**adicionar pois no pub.out dá erro o fato de ter um \n na última resposta*/
+
+    // Le ate o End Of File
     while(scanf("%i",&scan)!=EOF){
 	printf("%i\n",sum(scan)); 
     }

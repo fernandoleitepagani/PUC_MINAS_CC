@@ -1,13 +1,21 @@
 - [x] **Ciframento de César**
-- [ ] **Alteração Aleatória**
-- [ ] **Is**
-- [ ] **Inversão de String**
+- [x] **Alteração Aleatória**
+- [x] **Is**
+- [x] **Inversão de String**
 - [x] **Soma de Dígitos**
-- [ ] **Verificação de Anagrama**
-- [ ] **Substring Mais Longa Sem Repetição**
-- [ ] **Validação de Senha**
-- [ ] **Ciframento de César (RECURSIVO)**
-- [ ] **Is (RECURSIVO)**
-- [ ] **Inversão de String (RECURSIVO)**
-- [ ] **Soma de Dígitos (RECURSIVO)**
+- [x] **Verificação de Anagrama**
+- [x] **Substring Mais Longa Sem Repetição**
+- [x] **Validação de Senha**
+- [x] **Ciframento de César (RECURSIVO)**
+- [x] **Is (RECURSIVO)**
+- [x] **Inversão de String (RECURSIVO)**
+- [x] **Soma de Dígitos (RECURSIVO)**
 
+
+>[!IMPORTANT]
+>*Atenção!* 
+>Comentar Códigos !!!
+
+
+>[!WARNING]
+>Cuidado com as guidelines do pdf
