@@ -43,6 +43,10 @@ public class loginController {
             @RequestParam("instituicao") String instituicao,
             @RequestParam("senha") String senha) {
 
+        // Aqui você pode adicionar lógica para salvar os dados do usuário, por exemplo:
+        // userService.saveUser(new User(nome, email, cpf, rg, endereco, instituicao, senha));
+
+        // Redirecionar ou exibir uma mensagem de sucesso
         System.out.println("Registro: Redirecionado para a página de login.");
         return "redirect:/login"; // Após o registro, redirecionar para a página de login
     }
@@ -55,7 +59,24 @@ public class loginController {
     @PostMapping("/recoverpassword")
     public String handleRecoverPassword(
             @RequestParam("email") String email) {
+
+        // Aqui você pode adicionar lógica para recuperar a senha.
+        // userService.recoverPassword(email);
+
+        // Redirecionar ou exibir uma mensagem de sucesso
         System.out.println("Recuperação de E-mail: Redirecionado para a página de login.");
-        return "redirect:/login";
+        return "redirect:/login"; // Após a recuperação de senha, redirecionar para a página de login
+    }
+
+    @GetMapping("/recoverpasswordsms")
+    public String recoverpasswordsms() {
+        return "recoverpasswordsms";
+    }
+
+    @PostMapping("/recoverpasswordsms")
+    public String handleRecoverPasswordsms(
+            @RequestParam("sms") String sms) {
+        System.out.println("Recuperação de SMS: Redirecionado para a página de login.");
+        return "redirect:/login"; 
     }
 }
