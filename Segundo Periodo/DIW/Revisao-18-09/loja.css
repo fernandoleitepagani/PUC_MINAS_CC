@@ -6,6 +6,12 @@ body {
   flex-direction: column;
 }
 
+table {
+  border-collapse: collapse; /* This is the key! Must be on <table>, not the wrapper div */
+  border-spacing: 0;
+  width: 100%;
+}
+
 td {
   border: 1px solid black; /* Changed to 1px for a cleaner look */
   height: 15vh;
@@ -30,7 +36,6 @@ img {
 }
 
 .table {
-  border-collapse: collapse; /* This is the key! */
   margin: 30px 25px 30px 30px;
   border: 1px solid black; /* Outer border */
   background-color: white;
