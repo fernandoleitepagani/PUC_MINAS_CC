@@ -1,9 +1,18 @@
-body{
-  width: 60%;
+body {
+  width: 62.5%;
   background-color: yellow;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
-img{
+td {
+  border: 1px solid black; /* Changed to 1px for a cleaner look */
+  height: 15vh;
+  width: 50%;
+}
+
+img {
   display: flex;
   width: 140px;
   height: 140px;
@@ -11,30 +20,24 @@ img{
   justify-content: center;
   object-fit: contain;
 }
-.bold{
-  font-weight: bold;
-}
 
-.header{
+.header {
   margin: 7px 7px 7px 7px;
   padding: 2px 2px 2px 2px;
   background-color: black;
   color: yellow;
-  font-size: 12;
-
+  font-size: 12px; /* Added px */
 }
 
-.table{
+.table {
+  border-collapse: collapse; /* This is the key! */
   margin: 30px 25px 30px 30px;
-  padding: 0px 0px 0px 0px;
-  background-color: transparent;
+  border: 1px solid black; /* Outer border */
+  background-color: white;
 }
 
-.border-product{
+.border-product {
   width: 400px;
   height: 140px;
-  border: 2px solid;
   padding: 6px;
-  border-color: black;
-  background-color: white;
 }
