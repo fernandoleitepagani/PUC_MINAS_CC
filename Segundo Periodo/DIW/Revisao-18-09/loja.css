@@ -1,0 +1,40 @@
+body{
+  width: 60%;
+  background-color: yellow;
+}
+
+img{
+  display: flex;
+  width: 140px;
+  height: 140px;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+}
+.bold{
+  font-weight: bold;
+}
+
+.header{
+  margin: 7px 7px 7px 7px;
+  padding: 2px 2px 2px 2px;
+  background-color: black;
+  color: yellow;
+  font-size: 12;
+
+}
+
+.table{
+  margin: 30px 25px 30px 30px;
+  padding: 0px 0px 0px 0px;
+  background-color: transparent;
+}
+
+.border-product{
+  width: 400px;
+  height: 140px;
+  border: 2px solid;
+  padding: 6px;
+  border-color: black;
+  background-color: white;
+}
