@@ -84,7 +84,7 @@ class Veiculo {
   public String formatVeiculo() {
     String comb = "";
     for (int i = 0; i < combustivel.length; i++) {
-      if (i > 0) comb += ";";
+      if (i > 0) comb += ",";
       comb += combustivel[i];
     }
 

@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lista encadeada — visualização passo a passo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Reutilize o mesmo bloco CSS de fila.html */
+:root{--bg:#e8ecf4;--panel:#fbfcfe;--panel-2:#f0f3f9;--line:#d2d9e8;--line-soft:#e3e8f2;--ink:#131c33;--ink-2:#4a5570;--ink-3:#7b859e;--code-bg:#f4f6fc;--cell:#ffffff;--cell-line:#c7cfe2;--free:#e6eaf3;--shadow:0 1px 2px rgba(19,28,51,.06),0 8px 24px -12px rgba(19,28,51,.18);--c-a:#1d7fd4;--c-b:#0e9f6e;--c-c:#b4690e;--c-d:#a8399c;--c-e:#d2365c;--c-f:#7c5cd6;--ok-bg:rgba(14,159,110,.13);--ok-line:rgba(14,159,110,.55);--piv-bg:rgba(168,57,156,.12);--piv-line:rgba(168,57,156,.6);--cmp-line:#0e9f6e;--wr-line:#b4690e;--kw:#a8399c;--num:#b4690e;--cm:#7b859e;--fn:#1d7fd4;--var:#0e9f6e;--cst:#d2365c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1220;--panel:#151c2b;--panel-2:#1b2333;--line:#2a3447;--line-soft:#222b3c;--ink:#e2e8f6;--ink-2:#a6b0c8;--ink-3:#7d8aa5;--code-bg:#121827;--cell:#1e2739;--cell-line:#39445c;--free:#1a2130;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);--c-a:#58b2f5;--c-b:#3ed9a0;--c-c:#f0ab4c;--c-d:#e77fda;--c-e:#ff7a9c;--c-f:#b096f5;--ok-bg:rgba(62,217,160,.14);--ok-line:rgba(62,217,160,.5);--piv-bg:rgba(231,127,218,.14);--piv-line:rgba(231,127,218,.55);--cmp-line:#3ed9a0;--wr-line:#f0ab4c;--kw:#e77fda;--num:#f0ab4c;--cm:#6f7c96;--fn:#58b2f5;--var:#3ed9a0;--cst:#ff7a9c}}
+:root[data-theme="dark"]{--bg:#0d1220;--panel:#151c2b;--panel-2:#1b2333;--line:#2a3447;--line-soft:#222b3c;--ink:#e2e8f6;--ink-2:#a6b0c8;--ink-3:#7d8aa5;--code-bg:#121827;--cell:#1e2739;--cell-line:#39445c;--free:#1a2130;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);--c-a:#58b2f5;--c-b:#3ed9a0;--c-c:#f0ab4c;--c-d:#e77fda;--c-e:#ff7a9c;--c-f:#b096f5;--ok-bg:rgba(62,217,160,.14);--ok-line:rgba(62,217,160,.5);--piv-bg:rgba(231,127,218,.14);--piv-line:rgba(231,127,218,.55);--cmp-line:#3ed9a0;--wr-line:#f0ab4c;--kw:#e77fda;--num:#f0ab4c;--cm:#6f7c96;--fn:#58b2f5;--var:#3ed9a0;--cst:#ff7a9c}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;padding:22px 16px 64px;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+header{margin-bottom:18px}h1{font-size:clamp(22px,3.4vw,31px);line-height:1.15;margin:0 0 6px;font-weight:600;letter-spacing:-.02em}
+h1 code{font-size:.92em;font-weight:700;color:var(--c-a)}.lede{margin:0;color:var(--ink-2);max-width:70ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;margin-top:16px}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.readouts{display:flex;flex-wrap:wrap;gap:7px;padding:13px 14px;border-bottom:1px solid var(--line-soft)}
+.ro{display:inline-flex;align-items:baseline;gap:6px;border:1px solid var(--line);border-radius:7px;padding:3px 8px;background:var(--panel-2);font-size:12px}
+.ro b{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;color:var(--ink)}
+.ro span{color:var(--ink-3)}.ro.on{background:transparent}
+.ro.c-a.on{border-color:var(--c-a)}.ro.c-a.on span{color:var(--c-a)}
+.ro.c-b.on{border-color:var(--c-b)}.ro.c-b.on span{color:var(--c-b)}
+.ro.c-c.on{border-color:var(--c-c)}.ro.c-c.on span{color:var(--c-c)}
+.ro.c-d.on{border-color:var(--c-d)}.ro.c-d.on span{color:var(--c-d)}
+.ro.c-e.on{border-color:var(--c-e)}.ro.c-e.on span{color:var(--c-e)}
+.ro.c-f.on{border-color:var(--c-f)}.ro.c-f.on span{color:var(--c-f)}
+.strip-sec{border-top:1px solid var(--line-soft);padding:12px 14px 15px}.strip-sec:first-child{border-top:none}
+.strip-title{font-size:12.5px;color:var(--ink-2);margin:0 0 10px}
+.strip{display:flex;align-items:flex-end;gap:5px;overflow-x:auto;padding-bottom:6px}
+.strip.nodes{display:flex;align-items:flex-end;gap:4px;padding:10px 2px 4px}
+.node-cell{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px}
+.node-marks{height:17px;display:flex;gap:3px;justify-content:center}
+.node-marks i{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;padding:0 4px;border-radius:4px;line-height:15px;border:1px solid currentColor;white-space:nowrap}
+.node-marks i.m-a{color:var(--c-a)}.node-marks i.m-b{color:var(--c-b)}.node-marks i.m-c{color:var(--c-c)}.node-marks i.m-d{color:var(--c-d)}.node-marks i.m-e{color:var(--c-e)}.node-marks i.m-f{color:var(--c-f)}
+.node-box{display:flex;align-items:stretch;border:1.6px solid var(--cell-line);border-radius:8px;background:var(--cell);overflow:hidden;height:40px;transition:border-color .12s,background .12s}
+.node-val{display:flex;align-items:center;justify-content:center;padding:0 12px;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:14.5px;min-width:34px}
+.node-ptr{display:flex;align-items:center;justify-content:center;background:var(--panel-2);padding:0 5px;font-size:10px;color:var(--ink-2);font-family:"JetBrains Mono",monospace;border-left:1.6px solid var(--cell-line)}
+.node-ptr.prev{border-left:none;border-right:1.6px solid var(--cell-line)}
+.node-ptr.null{color:var(--ink-3);opacity:.4}.node-lbl{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--ink-3)}
+.node-cell.is-ghost .node-box{border-style:dashed;opacity:.75}
+.node-cell.is-hl .node-box{background:var(--piv-bg);border-color:var(--piv-line)}
+.node-cell.is-cmp .node-box{border-color:var(--cmp-line);border-width:2.4px}
+.node-cell.is-write .node-box{border-color:var(--wr-line);border-width:2.4px}
+.empty-msg{color:var(--ink-3);font-style:italic;padding:12px 8px;font-size:13.5px}
+.codebox{padding:0;overflow:hidden;display:flex;flex-direction:column}
+pre.code{margin:0;background:var(--code-bg);border-radius:14px 14px 0 0;font-family:"JetBrains Mono",monospace;font-size:12.6px;line-height:1.62;overflow-x:auto;overflow-y:auto;max-height:420px;padding:12px 0}
+.cl{display:block;padding:0 14px 0 0;white-space:pre;border-left:3px solid transparent}
+.cl .ln{display:inline-block;width:30px;text-align:right;margin-right:12px;color:var(--ink-3);opacity:.6;user-select:none}
+.cl.active{background:rgba(29,127,212,.12);border-left-color:var(--c-a)}
+.cl.active .ln{opacity:1;color:var(--c-a)}
+.kw{color:var(--kw)}.num{color:var(--num)}.cm{color:var(--cm);font-style:italic}.fn{color:var(--fn)}.var{color:var(--var)}.cst{color:var(--cst)}
+.narr{border-top:1px solid var(--line-soft);padding:14px;min-height:118px}
+.narr h3{margin:0 0 6px;font-size:12.5px;font-weight:600;color:var(--ink-3);letter-spacing:.01em}
+.narr p{margin:0;font-size:14.5px;line-height:1.62}
+.narr code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px;font-size:12.6px}
+.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;margin-top:16px}
+button{font-family:inherit;font-size:14px;font-weight:500;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer}
+button:hover{border-color:var(--ink-3)}button:disabled{opacity:.38;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--c-a);outline-offset:2px}
+button.play{background:var(--ink);color:var(--panel);border-color:var(--ink);min-width:104px}
+.counter{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-2);margin-left:2px}
+.speed{display:flex;align-items:center;gap:7px;margin-left:auto;font-size:12.5px;color:var(--ink-2)}
+input[type=range]{accent-color:var(--c-a);width:104px}
+.bar{height:3px;background:var(--line-soft);border-radius:0 0 13px 13px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c-a);width:0;transition:width .15s linear}
+details.cfg{margin-top:16px}
+details.cfg summary{cursor:pointer;padding:13px 14px;font-weight:500;font-size:14.5px;list-style:none;display:flex;align-items:center;gap:8px}
+details.cfg summary::-webkit-details-marker{display:none}
+details.cfg summary::before{content:"▸";color:var(--ink-3);transition:transform .15s}
+details.cfg[open] summary::before{transform:rotate(90deg)}
+.cfgbody{padding:0 14px 15px;border-top:1px solid var(--line-soft);padding-top:14px}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.presets button{font-size:13px;padding:6px 11px;border-radius:999px}
+.presets button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.fields{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--ink-2)}
+input[type=text]{font-family:"JetBrains Mono",monospace;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:280px}
+.err{color:var(--c-e);font-size:13px;margin:10px 0 0;min-height:19px}
+.notes{margin-top:16px;padding:16px 18px}
+.notes h2{font-size:17px;margin:0 0 4px;font-weight:600;letter-spacing:-.01em}
+.notes h2:not(:first-child){margin-top:22px}
+.notes p{color:var(--ink-2);margin:0 0 10px;max-width:76ch;font-size:14.3px}
+.notes code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px;font-size:12.6px;color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12.5px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:15px;height:15px;border-radius:4px;border:1.4px solid var(--cell-line);background:var(--cell);flex:0 0 auto}
+.sw.piv{background:var(--piv-bg);border-color:var(--piv-line)}
+.sw.cmp{border-color:var(--cmp-line);border-width:2.4px}
+.sw.wr{border-color:var(--wr-line);border-width:2.4px}
+.sw.ghost{background:var(--free);border-style:dashed}
+footer{margin-top:22px;color:var(--ink-3);font-size:12.5px}
+.home{display:inline-block;margin-bottom:10px;font-size:12.5px;color:var(--ink-3);text-decoration:none}.home:hover{color:var(--c-a)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.tabs button{flex:1;min-width:160px;background:transparent;border:1px solid transparent;border-radius:9px;padding:9px 12px;font-size:13.5px;font-weight:500;color:var(--ink-2);cursor:pointer}
+.tabs button:hover{border-color:var(--line)}
+.tabs button[aria-selected="true"]{background:var(--panel-2);border-color:var(--line);color:var(--ink);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="home" href="index.html">&larr; voltar para o menu</a>
+<header>
+  <h1><code>Lista</code> encadeada</h1>
+  <p class="lede" id="lede"></p>
+</header>
+
+<div class="tabs" id="tabs" role="tablist">
+  <button data-v="simples" role="tab" aria-selected="true">Simplesmente encadeada</button>
+  <button data-v="dupla" role="tab" aria-selected="false">Duplamente encadeada</button>
+  <button data-v="flexivel" role="tab" aria-selected="false">Flexível (circular)</button>
+</div>
+
+<div class="grid">
+  <section class="panel">
+    <div class="readouts" id="readouts"></div>
+    <div class="strip-sec">
+      <p class="strip-title">a lista &mdash; início à esquerda</p>
+      <div class="strip nodes" id="strip-main"></div>
+    </div>
+  </section>
+  <section class="panel codebox">
+    <pre class="code" id="code"></pre>
+    <div class="narr">
+      <h3 id="phase">Preparação</h3>
+      <p id="note"></p>
+    </div>
+  </section>
+</div>
+
+<div class="panel transport">
+  <button id="btnReset" title="Home">Recomeçar</button>
+  <button id="btnPrev" title="←">Anterior</button>
+  <button class="play" id="btnPlay" title="Espaço">Executar</button>
+  <button id="btnNext" title="→">Próximo</button>
+  <span class="counter" id="counter">1 / 1</span>
+  <span class="speed"><label for="speed">velocidade</label><input type="range" id="speed" min="1" max="10" value="5"></span>
+</div>
+<div class="bar"><i id="bar"></i></div>
+
+<details class="panel cfg" id="cfg">
+  <summary>Testar outras operações</summary>
+  <div class="cfgbody">
+    <div class="fields">
+      <div class="field"><label for="fOps">operações</label><input type="text" id="fOps"></div>
+      <button id="btnApply">Aplicar</button>
+    </div>
+    <p class="err" id="err"></p>
+    <p class="err" style="color:var(--ink-3);font-size:12px">Ex.: <code>inserirInicio(10), inserirFim(20), remover(10)</code></p>
+  </div>
+</details>
+
+<section class="panel notes">
+  <h2>Como funciona</h2>
+  <p id="note-como"></p>
+  <h2>Custo</h2>
+  <p id="note-custo"></p>
+  <h2>Legenda</h2>
+  <div class="legend">
+    <span><i class="sw"></i> nó normal</span>
+    <span><i class="sw piv"></i> nó destacado</span>
+    <span><i class="sw ghost"></i> nó recém-criado</span>
+    <span><i class="sw cmp"></i> em comparação</span>
+    <span><i class="sw wr"></i> sendo alterado</span>
+  </div>
+</section>
+<footer>Use ← e → para andar passo a passo, espaço para executar.</footer>
+</div>
+
+<script>
+const VARIANTS = {
+  simples: {
+    label:'Simplesmente encadeada',
+    lede:'Cada nó tem <code>prox</code>. As operações no início são O(1); no fim, O(n) porque é preciso percorrer a lista.',
+    como:'Lista de nós com <code>prox</code>. O <code>inicio</code> é o único ponto de acesso direto. Inserir e remover no início são O(1); buscar e remover por valor exigem percorrer.',
+    custo:'Início: <b>O(1)</b>. Fim/busca: <b>O(n)</b>.',
+    code:[
+      'public class ListaSimples {',
+      '    private No inicio;',
+      '    private int tam;',
+      '',
+      '    private static class No {',
+      '        int valor;',
+      '        No prox;',
+      '        No(int v) { valor = v; }',
+      '    }',
+      '',
+      '    public void inserirInicio(int valor) {',
+      '        No novo = new No(valor);',
+      '        novo.prox = inicio;',
+      '        inicio = novo;',
+      '        tam++;',
+      '    }',
+      '',
+      '    public void inserirFim(int valor) {',
+      '        No novo = new No(valor);',
+      '        if (inicio == null) { inicio = novo; }',
+      '        else {',
+      '            No atual = inicio;',
+      '            while (atual.prox != null) atual = atual.prox;',
+      '            atual.prox = novo;',
+      '        }',
+      '        tam++;',
+      '    }',
+      '',
+      '    public boolean remover(int valor) {',
+      '        No ant = null, atual = inicio;',
+      '        while (atual != null && atual.valor != valor) {',
+      '            ant = atual; atual = atual.prox;',
+      '        }',
+      '        if (atual == null) return false;',
+      '        if (ant == null) inicio = atual.prox;',
+      '        else ant.prox = atual.prox;',
+      '        tam--;',
+      '        return true;',
+      '    }',
+      '}'
+    ],
+    fn:['inserirInicio','inserirFim','remover'],
+    vars:['valor','novo','inicio','atual','ant','tam'],
+    readouts:[['a','inicio'],['e','tam']],
+    ops:[{op:'inserirInicio',v:10},{op:'inserirFim',v:20},{op:'inserirInicio',v:5},{op:'remover',v:20},{op:'inserirFim',v:30},{op:'remover',v:5}],
+    opsText:'inserirInicio(10), inserirFim(20), inserirInicio(5), remover(20), inserirFim(30), remover(5)'
+  },
+  dupla: {
+    label:'Duplamente encadeada',
+    lede:'Cada nó tem <code>prox</code> e <code>ant</code>. Percorrer nos dois sentidos e remover dado um nó ficam O(1); inserir no fim também é O(1) se guardarmos o <code>fim</code>.',
+    como:'Cada nó tem <code>prox</code> e <code>ant</code>. A lista guarda <code>inicio</code> e <code>fim</code>, então inserir/remover nas duas pontas é O(1). Remover por valor percorre até achar.',
+    custo:'Início e fim: <b>O(1)</b>. Busca/remoção por valor: <b>O(n)</b>.',
+    code:[
+      'public class ListaDupla {',
+      '    private No inicio;',
+      '    private No fim;',
+      '    private int tam;',
+      '',
+      '    private static class No {',
+      '        int valor;',
+      '        No prox;',
+      '        No ant;',
+      '        No(int v) { valor = v; }',
+      '    }',
+      '',
+      '    public void inserirInicio(int valor) {',
+      '        No novo = new No(valor);',
+      '        if (inicio == null) { inicio = fim = novo; }',
+      '        else {',
+      '            novo.prox = inicio;',
+      '            inicio.ant = novo;',
+      '            inicio = novo;',
+      '        }',
+      '        tam++;',
+      '    }',
+      '',
+      '    public void inserirFim(int valor) {',
+      '        No novo = new No(valor);',
+      '        if (fim == null) { inicio = fim = novo; }',
+      '        else {',
+      '            novo.ant = fim;',
+      '            fim.prox = novo;',
+      '            fim = novo;',
+      '        }',
+      '        tam++;',
+      '    }',
+      '',
+      '    public boolean remover(int valor) {',
+      '        No atual = inicio;',
+      '        while (atual != null && atual.valor != valor) atual = atual.prox;',
+      '        if (atual == null) return false;',
+      '        if (atual.ant != null) atual.ant.prox = atual.prox;',
+      '        else inicio = atual.prox;',
+      '        if (atual.prox != null) atual.prox.ant = atual.ant;',
+      '        else fim = atual.ant;',
+      '        tam--;',
+      '        return true;',
+      '    }',
+      '}'
+    ],
+    fn:['inserirInicio','inserirFim','remover'],
+    vars:['valor','novo','inicio','fim','atual','tam'],
+    readouts:[['a','inicio'],['c','fim'],['e','tam']],
+    ops:[{op:'inserirInicio',v:10},{op:'inserirFim',v:20},{op:'inserirInicio',v:5},{op:'remover',v:20},{op:'inserirFim',v:30},{op:'remover',v:5}],
+    opsText:'inserirInicio(10), inserirFim(20), inserirInicio(5), remover(20), inserirFim(30), remover(5)'
+  },
+  flexivel: {
+    label:'Flexível (circular)',
+    lede:'Lista circular: o último nó aponta de volta para o primeiro. Guardando só o <code>fim</code>, o início é <code>fim.prox</code> — sem <code>null</code>.',
+    como:'Lista circular simplesmente encadeada. O <code>fim</code> aponta para o <code>inicio</code>. Inserir nas duas pontas é O(1); percorrer tem que detectar o ciclo.',
+    custo:'Início e fim: <b>O(1)</b>. Busca: <b>O(n)</b>. Sem ponteiros nulos.',
+    code:[
+      'public class ListaFlexivel {',
+      '    private No fim;',
+      '    private int tam;',
+      '',
+      '    private static class No {',
+      '        int valor;',
+      '        No prox;',
+      '        No(int v) { valor = v; }',
+      '    }',
+      '',
+      '    public void inserirInicio(int valor) {',
+      '        No novo = new No(valor);',
+      '        if (fim == null) {',
+      '            novo.prox = novo; fim =

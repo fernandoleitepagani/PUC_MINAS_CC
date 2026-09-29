@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fila encadeada — visualização passo a passo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* mesmo CSS do pilha.html — reaproveite o bloco */
+:root{--bg:#e8ecf4;--panel:#fbfcfe;--panel-2:#f0f3f9;--line:#d2d9e8;--line-soft:#e3e8f2;--ink:#131c33;--ink-2:#4a5570;--ink-3:#7b859e;--code-bg:#f4f6fc;--cell:#ffffff;--cell-line:#c7cfe2;--free:#e6eaf3;--shadow:0 1px 2px rgba(19,28,51,.06),0 8px 24px -12px rgba(19,28,51,.18);--c-a:#1d7fd4;--c-b:#0e9f6e;--c-c:#b4690e;--c-d:#a8399c;--c-e:#d2365c;--c-f:#7c5cd6;--ok-bg:rgba(14,159,110,.13);--ok-line:rgba(14,159,110,.55);--piv-bg:rgba(168,57,156,.12);--piv-line:rgba(168,57,156,.6);--cmp-line:#0e9f6e;--wr-line:#b4690e;--kw:#a8399c;--num:#b4690e;--cm:#7b859e;--fn:#1d7fd4;--var:#0e9f6e;--cst:#d2365c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1220;--panel:#151c2b;--panel-2:#1b2333;--line:#2a3447;--line-soft:#222b3c;--ink:#e2e8f6;--ink-2:#a6b0c8;--ink-3:#7d8aa5;--code-bg:#121827;--cell:#1e2739;--cell-line:#39445c;--free:#1a2130;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);--c-a:#58b2f5;--c-b:#3ed9a0;--c-c:#f0ab4c;--c-d:#e77fda;--c-e:#ff7a9c;--c-f:#b096f5;--ok-bg:rgba(62,217,160,.14);--ok-line:rgba(62,217,160,.5);--piv-bg:rgba(231,127,218,.14);--piv-line:rgba(231,127,218,.55);--cmp-line:#3ed9a0;--wr-line:#f0ab4c;--kw:#e77fda;--num:#f0ab4c;--cm:#6f7c96;--fn:#58b2f5;--var:#3ed9a0;--cst:#ff7a9c}}
+:root[data-theme="dark"]{--bg:#0d1220;--panel:#151c2b;--panel-2:#1b2333;--line:#2a3447;--line-soft:#222b3c;--ink:#e2e8f6;--ink-2:#a6b0c8;--ink-3:#7d8aa5;--code-bg:#121827;--cell:#1e2739;--cell-line:#39445c;--free:#1a2130;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);--c-a:#58b2f5;--c-b:#3ed9a0;--c-c:#f0ab4c;--c-d:#e77fda;--c-e:#ff7a9c;--c-f:#b096f5;--ok-bg:rgba(62,217,160,.14);--ok-line:rgba(62,217,160,.5);--piv-bg:rgba(231,127,218,.14);--piv-line:rgba(231,127,218,.55);--cmp-line:#3ed9a0;--wr-line:#f0ab4c;--kw:#e77fda;--num:#f0ab4c;--cm:#6f7c96;--fn:#58b2f5;--var:#3ed9a0;--cst:#ff7a9c}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;padding:22px 16px 64px;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+header{margin-bottom:18px}h1{font-size:clamp(22px,3.4vw,31px);line-height:1.15;margin:0 0 6px;font-weight:600;letter-spacing:-.02em}
+h1 code{font-size:.92em;font-weight:700;color:var(--c-a)}.lede{margin:0;color:var(--ink-2);max-width:70ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;margin-top:16px}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.readouts{display:flex;flex-wrap:wrap;gap:7px;padding:13px 14px;border-bottom:1px solid var(--line-soft)}
+.ro{display:inline-flex;align-items:baseline;gap:6px;border:1px solid var(--line);border-radius:7px;padding:3px 8px;background:var(--panel-2);font-size:12px}
+.ro b{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;color:var(--ink)}
+.ro span{color:var(--ink-3)}.ro.on{background:transparent}
+.ro.c-a.on{border-color:var(--c-a)}.ro.c-a.on span{color:var(--c-a)}
+.ro.c-b.on{border-color:var(--c-b)}.ro.c-b.on span{color:var(--c-b)}
+.ro.c-c.on{border-color:var(--c-c)}.ro.c-c.on span{color:var(--c-c)}
+.ro.c-d.on{border-color:var(--c-d)}.ro.c-d.on span{color:var(--c-d)}
+.ro.c-e.on{border-color:var(--c-e)}.ro.c-e.on span{color:var(--c-e)}
+.ro.c-f.on{border-color:var(--c-f)}.ro.c-f.on span{color:var(--c-f)}
+.strip-sec{border-top:1px solid var(--line-soft);padding:12px 14px 15px}.strip-sec:first-child{border-top:none}
+.strip-title{font-size:12.5px;color:var(--ink-2);margin:0 0 10px}
+.strip{display:flex;align-items:flex-end;gap:5px;overflow-x:auto;padding-bottom:6px}
+.strip.nodes{display:flex;align-items:flex-end;gap:4px;padding:10px 2px 4px}
+.node-cell{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px}
+.node-marks{height:17px;display:flex;gap:3px;justify-content:center}
+.node-marks i{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;padding:0 4px;border-radius:4px;line-height:15px;border:1px solid currentColor;white-space:nowrap}
+.node-marks i.m-a{color:var(--c-a)}.node-marks i.m-b{color:var(--c-b)}.node-marks i.m-c{color:var(--c-c)}.node-marks i.m-d{color:var(--c-d)}.node-marks i.m-e{color:var(--c-e)}.node-marks i.m-f{color:var(--c-f)}
+.node-box{display:flex;align-items:stretch;border:1.6px solid var(--cell-line);border-radius:8px;background:var(--cell);overflow:hidden;height:40px;transition:border-color .12s,background .12s}
+.node-val{display:flex;align-items:center;justify-content:center;padding:0 12px;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:14.5px;min-width:34px}
+.node-ptr{display:flex;align-items:center;justify-content:center;background:var(--panel-2);padding:0 5px;font-size:10px;color:var(--ink-2);font-family:"JetBrains Mono",monospace;border-left:1.6px solid var(--cell-line)}
+.node-ptr.prev{border-left:none;border-right:1.6px solid var(--cell-line)}
+.node-ptr.null{color:var(--ink-3);opacity:.4}.node-lbl{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--ink-3)}
+.node-cell.is-ghost .node-box{border-style:dashed;opacity:.75}
+.node-cell.is-hl .node-box{background:var(--piv-bg);border-color:var(--piv-line)}
+.node-cell.is-cmp .node-box{border-color:var(--cmp-line);border-width:2.4px}
+.node-cell.is-write .node-box{border-color:var(--wr-line);border-width:2.4px}
+.empty-msg{color:var(--ink-3);font-style:italic;padding:12px 8px;font-size:13.5px}
+.codebox{padding:0;overflow:hidden;display:flex;flex-direction:column}
+pre.code{margin:0;background:var(--code-bg);border-radius:14px 14px 0 0;font-family:"JetBrains Mono",monospace;font-size:12.6px;line-height:1.62;overflow-x:auto;overflow-y:auto;max-height:420px;padding:12px 0}
+.cl{display:block;padding:0 14px 0 0;white-space:pre;border-left:3px solid transparent}
+.cl .ln{display:inline-block;width:30px;text-align:right;margin-right:12px;color:var(--ink-3);opacity:.6;user-select:none}
+.cl.active{background:rgba(29,127,212,.12);border-left-color:var(--c-a)}
+.cl.active .ln{opacity:1;color:var(--c-a)}
+.kw{color:var(--kw)}.num{color:var(--num)}.cm{color:var(--cm);font-style:italic}.fn{color:var(--fn)}.var{color:var(--var)}.cst{color:var(--cst)}
+.narr{border-top:1px solid var(--line-soft);padding:14px;min-height:118px}
+.narr h3{margin:0 0 6px;font-size:12.5px;font-weight:600;color:var(--ink-3);letter-spacing:.01em}
+.narr p{margin:0;font-size:14.5px;line-height:1.62}
+.narr code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px;font-size:12.6px}
+.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;margin-top:16px}
+button{font-family:inherit;font-size:14px;font-weight:500;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer}
+button:hover{border-color:var(--ink-3)}button:disabled{opacity:.38;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--c-a);outline-offset:2px}
+button.play{background:var(--ink);color:var(--panel);border-color:var(--ink);min-width:104px}
+.counter{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-2);margin-left:2px}
+.speed{display:flex;align-items:center;gap:7px;margin-left:auto;font-size:12.5px;color:var(--ink-2)}
+input[type=range]{accent-color:var(--c-a);width:104px}
+.bar{height:3px;background:var(--line-soft);border-radius:0 0 13px 13px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c-a);width:0;transition:width .15s linear}
+details.cfg{margin-top:16px}
+details.cfg summary{cursor:pointer;padding:13px 14px;font-weight:500;font-size:14.5px;list-style:none;display:flex;align-items:center;gap:8px}
+details.cfg summary::-webkit-details-marker{display:none}
+details.cfg summary::before{content:"▸";color:var(--ink-3);transition:transform .15s}
+details.cfg[open] summary::before{transform:rotate(90deg)}
+.cfgbody{padding:0 14px 15px;border-top:1px solid var(--line-soft);padding-top:14px}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.presets button{font-size:13px;padding:6px 11px;border-radius:999px}
+.presets button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.fields{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--ink-2)}
+input[type=text]{font-family:"JetBrains Mono",monospace;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:280px}
+.err{color:var(--c-e);font-size:13px;margin:10px 0 0;min-height:19px}
+.notes{margin-top:16px;padding:16px 18px}
+.notes h2{font-size:17px;margin:0 0 4px;font-weight:600;letter-spacing:-.01em}
+.notes h2:not(:first-child){margin-top:22px}
+.notes p{color:var(--ink-2);margin:0 0 10px;max-width:76ch;font-size:14.3px}
+.notes code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px;font-size:12.6px;color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12.5px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:15px;height:15px;border-radius:4px;border:1.4px solid var(--cell-line);background:var(--cell);flex:0 0 auto}
+.sw.piv{background:var(--piv-bg);border-color:var(--piv-line)}
+.sw.cmp{border-color:var(--cmp-line);border-width:2.4px}
+.sw.wr{border-color:var(--wr-line);border-width:2.4px}
+.sw.ghost{background:var(--free);border-style:dashed}
+footer{margin-top:22px;color:var(--ink-3);font-size:12.5px}
+.home{display:inline-block;margin-bottom:10px;font-size:12.5px;color:var(--ink-3);text-decoration:none}.home:hover{color:var(--c-a)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.tabs button{flex:1;min-width:160px;background:transparent;border:1px solid transparent;border-radius:9px;padding:9px 12px;font-size:13.5px;font-weight:500;color:var(--ink-2);cursor:pointer}
+.tabs button:hover{border-color:var(--line)}
+.tabs button[aria-selected="true"]{background:var(--panel-2);border-color:var(--line);color:var(--ink);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="home" href="index.html">&larr; voltar para o menu</a>
+<header>
+  <h1><code>Fila</code> encadeada</h1>
+  <p class="lede" id="lede"></p>
+</header>
+
+<div class="tabs" id="tabs" role="tablist">
+  <button data-v="simples" role="tab" aria-selected="true">Simplesmente encadeada</button>
+  <button data-v="dupla" role="tab" aria-selected="false">Duplamente encadeada</button>
+  <button data-v="flexivel" role="tab" aria-selected="false">Flexível (circular)</button>
+</div>
+
+<div class="grid">
+  <section class="panel">
+    <div class="readouts" id="readouts"></div>
+    <div class="strip-sec">
+      <p class="strip-title">a fila &mdash; início à esquerda, fim à direita</p>
+      <div class="strip nodes" id="strip-main"></div>
+    </div>
+  </section>
+  <section class="panel codebox">
+    <pre class="code" id="code"></pre>
+    <div class="narr">
+      <h3 id="phase">Preparação</h3>
+      <p id="note"></p>
+    </div>
+  </section>
+</div>
+
+<div class="panel transport">
+  <button id="btnReset" title="Home">Recomeçar</button>
+  <button id="btnPrev" title="←">Anterior</button>
+  <button class="play" id="btnPlay" title="Espaço">Executar</button>
+  <button id="btnNext" title="→">Próximo</button>
+  <span class="counter" id="counter">1 / 1</span>
+  <span class="speed"><label for="speed">velocidade</label><input type="range" id="speed" min="1" max="10" value="5"></span>
+</div>
+<div class="bar"><i id="bar"></i></div>
+
+<details class="panel cfg" id="cfg">
+  <summary>Testar outras operações</summary>
+  <div class="cfgbody">
+    <div class="presets" id="presets"></div>
+    <div class="fields">
+      <div class="field"><label for="fOps">operações (enqueue/dequeue)</label><input type="text" id="fOps"></div>
+      <button id="btnApply">Aplicar</button>
+    </div>
+    <p class="err" id="err"></p>
+  </div>
+</details>
+
+<section class="panel notes">
+  <h2>Como funciona</h2>
+  <p id="note-como"></p>
+  <h2>Custo</h2>
+  <p id="note-custo"></p>
+  <h2>Legenda</h2>
+  <div class="legend">
+    <span><i class="sw"></i> nó normal</span>
+    <span><i class="sw piv"></i> início / fim</span>
+    <span><i class="sw ghost"></i> nó recém-criado</span>
+    <span><i class="sw cmp"></i> em destaque</span>
+    <span><i class="sw wr"></i> sendo alterado</span>
+  </div>
+</section>
+<footer>Use ← e → para andar passo a passo, espaço para executar.</footer>
+</div>
+
+<script>
+/* ---------- Definição das variantes ---------- */
+const VARIANTS = {
+  simples: {
+    label:'Simplesmente encadeada',
+    lede:'Cada nó tem só <code>prox</code>; a fila guarda apenas o <code>inicio</code>. Entrar (enqueue) percorre a fila até o fim — O(n); sair (dequeue) é O(1).',
+    como:'Só temos o ponteiro <code>inicio</code>. Para enfileirar, é preciso percorrer a fila inteira até o último nó e ligar o novo ali; para desenfileirar, basta avançar <code>inicio</code>.',
+    custo:'<code>enqueue</code>: <b>O(n)</b>; <code>dequeue</code>: <b>O(1)</b>. Nó: 1 ponteiro.',
+    code:[
+      'public class FilaSimples {',
+      '    private No inicio;',
+      '    private int tam;',
+      '',
+      '    private static class No {',
+      '        int valor;',
+      '        No prox;',
+      '        No(int v) { valor = v; }',
+      '    }',
+      '',
+      '    public void enqueue(int valor) {',
+      '        No novo = new No(valor);',
+      '        if (inicio == null) {',
+      '            inicio = novo;',
+      '        } else {',
+      '            No atual = inicio;',
+      '            while (atual.prox != null) atual = atual.prox;',
+      '            atual.prox = novo;',
+      '        }',
+      '        tam++;',
+      '    }',
+      '',
+      '    public int dequeue() {',
+      '        if (inicio == null) throw new RuntimeException("Fila vazia");',
+      '        int valor = inicio.valor;',
+      '        inicio = inicio.prox;',
+      '        tam--;',
+      '        return valor;',
+      '    }',
+      '}'
+    ],
+    fn:['enqueue','dequeue'],
+    vars:['valor','novo','inicio','atual','tam'],
+    readouts:[['a','inicio'],['e','tam']],
+    lines:{ enqEnter:11, enqNew:12, enqEmpty:14, enqLoop:16, enqAttach:17, enqTam:18,
+            deqEnter:21, deqCheck:22, deqRead:23, deqAdvance:24, deqTam:25, deqReturn:26 },
+    ops:[{op:'enqueue',v:10},{op:'enqueue',v:20},{op:'dequeue'},{op:'enqueue',v:30},{op:'dequeue'},{op:'dequeue'}],
+    opsText:'enqueue(10), enqueue(20), dequeue(), enqueue(30), dequeue(), dequeue()'
+  },
+  dupla: {
+    label:'Duplamente encadeada',
+    lede:'Cada nó tem <code>prox</code> e <code>ant</code>, e a fila guarda <code>inicio</code> e <code>fim</code>. Enfileirar e desenfileirar ficam ambos em O(1).',
+    como:'Com os dois ponteiros (<code>inicio</code> e <code>fim</code>), o <code>enqueue</code> é imediato: liga no <code>fim</code> e atualiza <code>fim</code>. O <code>dequeue</code> apenas avança <code>inicio</code>, ajustando o <code>ant</code> do novo início.',
+    custo:'<code>enqueue</code> e <code>dequeue</code>: <b>O(1)</b>. Nó: 2 ponteiros.',
+    code:[
+      'public class FilaDupla {',
+      '    private No inicio;',
+      '    private No fim;',
+      '    private int tam;',
+      '',
+      '    private static class No {',
+      '        int valor;',
+      '        No prox;',
+      '        No ant;',
+      '        No(int v) { valor = v; }',
+      '    }',
+      '',
+      '    public void enqueue(int valor) {',
+      '        No novo = new No(valor);',
+      '        if (fim == null) {',
+      '            inicio = fim = novo;',
+      '        } else {',
+      '            novo.ant = fim;',
+      '            fim.prox = novo;',
+      '            fim = novo;',
+      '        }',
+      '        tam++;',
+      '    }',
+      '',
+      '    public int dequeue() {',
+      '        if (inicio == null) throw new RuntimeException("Fila vazia");',
+      '        int valor = inicio.valor;',
+      '        inicio = inicio.prox;',
+      '        if (inicio != null) inicio.ant = null;',
+      '        else fim = null;',
+      '        tam--;',
+      '        return valor;',
+      '    }',
+      '}'
+    ],
+    fn:['enqueue','dequeue'],
+    vars:['valor','novo','inicio','fim','tam'],
+    readouts:[['a','inicio'],['c','fim'],['e','tam']],
+    lines:{ enqEnter:12, enqNew:13, enqEmpty:15, enqAnt:17, enqLink:18, enqFim:19, enqTam:20,
+            deqEnter:23, deqCheck:24, deqRead:25, deqAdvance:26, deqAnt:27, deqFimNull:28, deqTam:29, deqReturn:30 },
+    ops:[{op:'enqueue',v:10},{op:'enqueue',v:20},{op:'dequeue'},{op:'enqueue',v:30},{op:'dequeue'}],
+    opsText:'enqueue(10), enqueue(20), dequeue(), enqueue(30), dequeue()'
+  },
+  flexivel: {
+    label:'Flexível (circular)',
+    lede:'Fila circular: o último nó aponta de volta para o primeiro. Guardando só o <code>fim</code>, recuperamos o início em O(1) via <code>fim.prox</code> — e não há ponteiros nulos.',
+    como:'A fila é circular. Mantemos só <code>fim</code>; o início é sempre <code>fim.prox</code>. Enqueue: novo nó entra depois do <code>fim</code> e vira o novo <code>fim</code>. Dequeue: retira <code>fim.prox</code> (o início) e religa o anel.',
+    custo:'<code>enqueue</code> e <code>dequeue</code>: <b>O(1)</b>. Nó: 1 ponteiro. Sem <code>null</code> — o "vazio" é <code>fim == null</code>.',
+    code:[
+      'public class FilaFlexivel {',
+      '    private No fim;',
+      '    private int tam;',
+      '',
+      '    private static class No {',
+      '        int valor;',
+      '        No prox;',
+      '        No(int v) { valor = v; }',
+      '    }',
+      '',
+      '    public void enqueue(int valor) {',
+      '        No novo = new No(valor);',
+      '        if (fim == null) {',
+      '            novo.prox = novo;',
+      '            fim = novo;',
+      '        } else {',
+      '            novo.prox = fim.prox;',
+      '            fim.prox = novo;',
+      '            fim = novo;',
+      '        }',
+      '        tam++;',
+      '    }',
+      '',
+      '    public int dequeue() {',
+      '        if (fim == null) throw new RuntimeException("Fila vazia");',
+      '        No inicio = fim.prox;',
+      '        int valor = inicio.valor;',
+      '        if (inicio == fim) {',
+      '            fim = null;',
+      '        } else {',
+      '            fim.prox = inicio.prox;',
+      '        }',
+      '        tam--;',
+      '        return valor;',
+      '    }',
+      '}'
+    ],
+    fn:['enqueue','dequeue'],
+    vars:['valor','novo','fim','inicio','tam'],
+    readouts:[['a','fim'],['e','tam']],
+    lines:{ enqEnter:11, enqNew:12, enqEmpty:14, enqSelf:14, enqFimFirst:15,
+            enqLink:17, enqNext:18, enqFim:19, enqTam:20,
+            deqEnter:23, deqCheck:24, deqIni:25, deqRead:26, deqSolo:28, deqFimNull:29, deqRelink:31, deqTam:32, deqReturn:33 },
+    ops:[{op:'enqueue',v:10},{op:'enqueue',v:20},{op:'dequeue'},{op:'enqueue',v:30},{op:'dequeue'},{op:'dequeue'}],
+    opsText:'enqueue(10), enqueue(20), dequeue(), enqueue(30), dequeue(), dequeue()'
+  }
+};
+
+let FN_NAMES=[], VAR_NAMES=[];
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(line){
+  return esc(line)
+    .replace(/\b(public|private|static|class|void|int|boolean|if|else|for|while|return|throw|new|null|true|false|this)\b/g,'<span class="kw">$1</span>')
+    .replace(new RegExp('\\b('+FN_NAMES.join('|')+')\\b','g'),'<span class="fn">$1</span>')
+    .replace(new RegExp('\\b('+VAR_NAMES.join('|')+')\\b','g'),'<span class="var">$1</span>')
+    .replace(/\b(\d+)\b/g,'<span class="num">$1</span>');
+}
+function paintCode(code){
+  document.getElementById('code').innerHTML = code.map((l,k)=>
+    '<span class="cl" data-l="'+(k+1)+'"><span class="ln">'+(k+1)+'</span>'+hl(l)+'</span>'
+  ).join('');
+}
+function nodeHTML(cell){
+  const cls=['node-cell'];
+  if(cell.ghost)cls.push('is-ghost');
+  if(cell.hl)cls.push('is-hl');
+  if(cell.cmp)cls.push('is-cmp');
+  if(cell.write)cls.push('is-write');
+  const marks=(cell.marks||[]).map(m=>'<i class="m-'+m.k+'">'+m.t+'</i>').join('');
+  const prev=cell.dbl?'<span class="node-ptr prev'+(cell.ant?'':' null')+'">'+(cell.ant?'◄':'∅')+'</span>':'';
+  const next='<span class="node-ptr next'+(cell.prox?'':' null')+'">'+(cell.prox?'►':'∅')+'</span>';
+  const v=(cell.v===null||cell.v===undefined)?'':cell.v;
+  return '<div class="'+cls.join(' ')+'">'+
+    '<div class="node-marks">'+marks+'</div>'+
+    '<div class="node-box">'+prev+'<span class="node-val">'+v+'</span>'+next+'</div>'+
+    '<div class="node-lbl">'+(cell.lbl||'')+'</div></div>';
+}
+function drawStrip(s){
+  const el=document.getElementById('strip-main');
+  const cells=(s.strips&&s.strips.main)||[];
+  if(!cells.length){el.innerHTML='<div class="empty-msg">(fila vazia)</div>';return;}
+  el.innerHTML=cells.map(nodeHTML).join('');
+}
+function ro(key,label,val){
+  const on=(val!==null&&val!==undefined);
+  return '<span class="ro c-'+key+(on?' on':'')+'"><span>'+label+'</span><b>'+(on?val:'\u2014')+'</b></span>';
+}
+function drawReadouts(s,keys){
+  document.getElementById('readouts').innerHTML=keys.map(([k,l])=>ro(k,l,s.vars?s.vars[k]:undefined)).join('');
+}
+
+/* ---------- construção dos passos ---------- */
+function buildSteps(ops,variant){
+  const out=[];
+  const isDbl=variant!=='simples';
+  const isCirc=variant==='flexivel';
+  const cfg=VARIANTS[variant];
+  const LN=cfg.lines;
+  const nodes=[];
+  let inicio=null, fim=null, tam=0, nextId=1, ghost=null;
+
+  function N(id){return nodes.find(n=>n.id===id);}
+  function cells(){
+    const arr=[];
+    if(ghost){
+      arr.push({v:ghost.val,dbl:isDbl,ghost:true,
+        prox:ghost.prox!==undefined&&ghost.prox!==null,
+        ant:false,marks:[{k:'d',t:'novo'}],lbl:ghost.id});
+    }
+    if(isCirc){
+      if(fim){
+        let cur=N(fim).prox; const seen=new Set();
+        while(cur && !seen.has(cur)){
+          seen.add(cur);
+          const n=N(cur); if(!n) break;
+          const m=[];
+          if(cur===inicio) m.push({k:'a',t:'início'});
+          if(cur===fim)    m.push({k:'c',t:'fim'});
+          arr.push({v:n.val,dbl:false,prox:true,ant:false,marks:m,lbl:n.id});
+          cur=n.prox;
+          if(cur===N(fim).prox) break;
+        }
+      }
+    } else {
+      let cur=inicio; const seen=new Set();
+      while(cur && !seen.has(cur)){
+        seen.add(cur);
+        const n=N(cur); if(!n) break;
+        const m=[];
+        if(cur===inicio) m.push({k:'a',t:'início'});
+        if(cur===fim)    m.push({k:'c',t:'fim'});
+        arr.push({v:n.val,dbl:isDbl,prox:n.prox!==null,ant:isDbl&&n.ant!==null,marks:m,lbl:n.id});
+        cur=n.prox;
+      }
+    }
+    return {main:arr};
+  }
+  function step(line,title,note,vars){out.push({line,title,note,vars:vars||{},strips:cells()});}
+
+  step(1,'Preparação','Fila vazia. Vamos executar: <code>'+cfg.opsText+'</code>.',{});
+
+  ops.forEach(op=>{
+    if(op.op==='enqueue'){
+      step(LN.enqEnter,'enqueue('+op.v+')','Entrando em <code>enqueue('+op.v+')</code>.',{d:op.v,e:tam});
+      const id='n'+(nextId++);
+      ghost={id,val:op.v,prox:undefined};
+      step(LN.enqNew,'Criar o nó','<code>No novo = new No('+op.v+')</code>: nó solto.',{d:op.v});
+
+      if(isCirc){
+        if(!fim){
+          ghost.prox=id; // aponta para si próprio
+          step(LN.enqSelf,'Primeiro nó (circular)','<code>novo.prox = novo</code>: o único nó de uma fila circular aponta para si mesmo.',{});
+          const nn={id,val:op.v,prox:id};
+          nodes.push(nn); ghost=null; fim=id; inicio=id; tam++;
+          step(LN.enqFimFirst,'Ajustar <code>fim</code>','<code>fim = novo</code>: a fila agora tem um único nó, que é início e fim.',{a:op.v,e:tam});
+          step(LN.enqTam,'tam++','Tamanho agora é '+tam+'.',{e:tam});
+        } else {
+          const oldIni=N(fim).prox;
+          ghost.prox=oldIni;
+          step(LN.enqLink,'Apontar para o início atual','<code>novo.prox = fim.prox</code>: o novo nó aponta para o início atual ('+N(oldIni).val+').',{});
+          const nn={id,val:op.v,prox:oldIni};
+          N(fim).prox=id;
+          nodes.push(nn); ghost=null;
+          step(LN.enqNext,'Religar o antigo fim','<code>fim.prox = novo</code>.',{});
+          inicio=id; // o antigo inicio deixa de ser o início até agora; na verdade o inicio continua o mesmo...
+          // correção: inicio continua sendo o primeiro (oldIni); fim vira o novo nó
+          inicio=oldIni;
+          fim=id; tam++;
+          step(LN.enqFim,'Atualizar <code>fim</code>','<code>fim = novo</code>: o fim passa a ser o nó '+op.v+'.',{a:op.v,e:tam});
+          step(LN.enqTam,'tam++','Tamanho agora é '+tam+'.',{e:tam});
+        }
+      } else if(isDbl){
+        if(!fim){
+          step(LN.enqEmpty,'Fila vazia','<code>inicio = fim = novo</code>: os dois ponteiros apontam para o único nó.',{});
+          const nn={id,val:op.v,prox:null,ant:null};
+          nodes.push(nn); ghost=null; inicio=id; fim=id; tam++;
+          step(LN.enqTam,'tam++','Tamanho agora é '+tam+'.',{e:tam});
+        } else {
+          ghost.prox=null;
+          step(LN.enqAnt,'Ligar ao antigo fim','<code>novo.ant = fim</code> (o antigo fim é o nó '+N(fim).val+').',{});
+          const nn={id,val:op.v,prox:null,ant:fim};
+          N(fim).prox=id;
+          nodes.push(nn); ghost=null;
+          step(LN.enqLink,'Antigo fim aponta para o novo','<code>fim.prox = novo</code>.',{});
+          fim=id; tam++;
+          step(LN.enqFim,'Atualizar <code>fim</code>','<code>fim = novo</code>: agora o fim é o nó '+op.v+'.',{c:op.v,e:tam});
+          step(LN.enqTam,'tam++','Tamanho agora é '+tam+'.',{e:tam});
+        }
+      } else {
+        // simples
+        if(!inicio){
+          step(LN.enqEmpty,'Fila vazia','<code>inicio = novo</code>: primeiro elemento da fila.',{});
+          const nn={id,val:op.v,prox:null};
+          nodes.push(nn); ghost=null; inicio=id; tam++;
+          step(LN.enqTam,'tam++','Tamanho agora é '+tam+'.',{e:tam});
+        } else {
+          // percorrer até o fim
+          let cur=inicio;
+          while(N(cur).prox!==null) cur=N(cur).prox;
+          step(LN.enqLoop,'Percorrer até o fim','<code>while (atual.prox != null) atual = atual.prox;</code> — chegamos ao nó '+N(cur).val+'.',{});
+          ghost.prox=null;
+          const nn={id,val:op.v,prox:null};
+          N(cur).prox=id;
+          nodes.push(nn); ghost=null; tam++;
+          step(LN.enqAttach,'Ligar o novo ao fim','<code>atual.prox = novo</code>.',{});
+          step(LN.enqTam,'tam++','Tamanho agora é '+tam+'.',{e:tam});
+        }
+      }
+    }
+    else if(op.op==='dequeue'){
+      step(LN.deqEnter,'dequeue()','Entrando em <code>dequeue</code>.',{});
+      step(LN.deqCheck,'Verificar vazio','Tamanho: '+tam+'.',{e:tam});
+      if(isCirc){
+        const ini=N(fim).prox;
+        step(LN.deqIni,'Localizar o início','<code>No inicio = fim.prox</code> &rarr; nó '+ini.val+'.',{d:ini.val});
+        step(LN.deqRead,'Ler o valor','<code>int valor = inicio.valor</code> &rarr; '+ini.val+'.',{d:ini.val});
+        const removedVal=ini.val;
+        if(ini.id===fim){
+          nodes.splice(nodes.indexOf(ini),1);
+          fim=null; inicio=null; tam--;
+          step(LN.deqSolo,'Era o único nó','<code>inicio == fim</code>: a fila fica vazia.',{e:tam});
+          step(LN.deqFimNull,'fim = null','A fila está vazia.',{e:tam});
+        } else {
+          const proxIni=N(ini).prox;
+          N(fim).prox=proxIni;
+          nodes.splice(nodes.indexOf(ini),1);
+          inicio=proxIni; tam--;
+          step(LN.deqRelink,'Religar o anel','<code>fim.prox = inicio.prox</code>: o novo início é o nó '+N(proxIni).val+'.',{a:N(proxIni).val,e:tam});
+        }
+        step(LN.deqTam,'tam--','Tamanho agora é '+tam+'.',{e:tam});
+        step(LN.deqReturn,'Retornar','<code>return '+removedVal+'</code>.',{d:removedVal});
+      } else {
+        const ini=N(inicio);
+        step(LN.deqRead,'Ler o valor','<code>int valor = inicio.valor</code> &rarr; '+ini.val+'.',{d:ini.val});
+        const removedVal=ini.val;
+        inicio=ini.prox;
+        nodes.splice(nodes.indexOf(ini),1);
+        tam--;
+        step(LN.deqAdvance,'Avançar o início','<code>inicio = inicio.prox</code>'+(inicio?': agora o início é o nó '+N(inicio).val+'.':': a fila ficou vazia.'),{});
+        if(isDbl){
+          if(inicio) N(inicio).ant=null;
+          step(LN.deqAnt,'Limpar o <code>ant</code>','<code>if (inicio != null) inicio.ant = null</code>.',{});
+          if(!inicio) step(LN.deqFimNull,'Zerar o fim','<code>else fim = null</code>.',{});
+        }
+        step(LN.deqTam,'tam--','Tamanho agora é '+tam+'.',{e:tam});
+        step(LN.deqReturn,'Retornar','<code>return '+removedVal+'</code>.',{d:removedVal});
+      }
+    }
+  });
+
+  step(1,'Pronto','Fim da simulação.',{});
+  return out;
+}
+
+/* ---------- player ---------- */
+let steps=[],idx=0,timer=null,current='simples';
+function render(){
+  const s=steps[idx]; if(!s)return;
+  drawReadouts(s,VARIANTS[current].readouts);
+  drawStrip(s);
+  document.querySelectorAll('.cl').forEach(el=>el.classList.remove('active'));
+  const active=document.querySelector('.cl[data-l="'+s.line+'"]');
+  if(active){
+    active.classList.add('active');
+    const box=document.getElementById('code');
+    const top=active.offsetTop-box.clientHeight/2+active.offsetHeight/2;
+    box.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+  }
+  document.getElementById('phase').textContent=s.title;
+  document.getElementById('note').innerHTML=s.note;
+  document.getElementById('counter').textContent=(idx+1)+' / '+steps.length;
+  document.getElementById('bar').style.width=((idx+1)/steps.length*100)+'%';
+  document.getElementById('btnPrev').disabled=idx===0;
+  document.getElementById('btnNext').disabled=idx===steps.length-1;
+}
+function go(n){idx=Math.max(0,Math.min(steps.length-1,n));render();}
+function stop(){if(timer){clearInterval(timer);timer=null;}document.getElementById('btnPlay').textContent='Executar';}
+function play(){
+  if(timer)return stop();
+  if(idx===steps.length-1)idx=0;
+  document.getElementById('btnPlay').textContent='Pausar';
+  const ms=1500/Number(document.getElementById('speed').value);
+  timer=setInterval(()=>{if(idx>=steps.length-1){stop();return;}go(idx+1);},ms);
+}
+function parseOps(text){
+  const out=[];
+  text.split(',').forEach(part=>{
+    const m=part.trim().match(/^(enqueue|dequeue)\s*\(\s*(\d*)\s*\)$/);
+    if(m){ if(m[1]==='enqueue') out.push({op:'enqueue',v:parseInt(m[2],10)}); else out.push({op:'dequeue'}); }
+  });
+  return out;
+}
+function load(variant,opsText){
+  const cfg=VARIANTS[variant]; current=variant;
+  document.getElementById('lede').innerHTML=cfg.lede;
+  document.getElementById('note-como').innerHTML=cfg.como;
+  document.getElementById('note-custo').innerHTML=cfg.custo;
+  FN_NAMES=cfg.fn; VAR_NAMES=cfg.vars;
+  paintCode(cfg.code);
+  const ops=opsText?parseOps(opsText):cfg.ops;
+  steps=buildSteps(ops,variant);
+  idx=0;stop();render();
+}
+document.getElementById('btnNext').onclick=()=>{stop();go(idx+1);};
+document.getElementById('btnPrev').onclick=()=>{stop();go(idx-1);};
+document.getElementById('btnReset').onclick=()=>{stop();go(0);};
+document.getElementById('btnPlay').onclick=play;
+document.getElementById('speed').oninput=()=>{if(timer){stop();play();}};
+document.addEventListener('keydown',e=>{
+  const t=e.target.tagName;
+  if(t==='INPUT'||t==='TEXTAREA')return;
+  if(e.key==='ArrowRight'){e.preventDefault();stop();go(idx+1);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();stop();go(idx-1);}
+  else if(e.key===' '){e.preventDefault();play();}
+  else if(e.key==='Home'){e.preventDefault();stop();go(0);}
+});
+document.querySelectorAll('#tabs button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('#tabs button').forEach(x=>x.setAttribute('aria-selected','false'));
+    b.setAttribute('aria-selected','true');
+    document.getElementById('fOps').value=VARIANTS[b.dataset.v].opsText;
+    load(b.dataset.v);
+  };
+});
+document.getElementById('fOps').value=VARIANTS.simples.opsText;
+document.getElementById('btnApply').onclick=()=>{
+  const err=document.getElementById('err');
+  const raw=document.getElementById('fOps').value.trim();
+  const ops=parseOps(raw);
+  if(!ops.length) return err.textContent='Use algo como enqueue(10), dequeue().';
+  err.textContent=''; load(current,raw);
+};
+load('simples');
+</script>
+</body>
+</html>

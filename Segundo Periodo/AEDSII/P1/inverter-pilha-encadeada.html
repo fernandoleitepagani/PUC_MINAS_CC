@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pilha.inverter() passo a passo</title>
+<style>
+:root{
+--paper:#E9EDEF;--panel:#FFFFFF;--cell:#FFFFFF;
+--ink:#16222B;--ink2:#53646F;--rule:#C6D1D7;--rule2:#8FA1AC;
+--v1:#4F46C7;--v1b:#E7E6FA;--v2:#B9501F;--v2b:#FBEAE0;--v3:#A83A69;--v3b:#FAE7EF;--v4:#4A5B66;--v4b:#E4EAEE;
+--done:#0E7C63;--doneb:#DEF0E9;--warn:#A8342B;
+--code:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+--text:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+--paper:#101820;--panel:#18222A;--cell:#1C2730;
+--ink:#E7EEF2;--ink2:#9AAAB4;--rule:#33424C;--rule2:#56676F;
+--v1:#A9A4F3;--v1b:#2A2A52;--v2:#E89463;--v2b:#3A2519;--v3:#E888B0;--v3b:#3A1C2A;--v4:#9FB0BA;--v4b:#253038;
+--done:#57C9A9;--doneb:#103A31;--warn:#E8796E;}}
+:root[data-theme="dark"]{
+--paper:#101820;--panel:#18222A;--cell:#1C2730;
+--ink:#E7EEF2;--ink2:#9AAAB4;--rule:#33424C;--rule2:#56676F;
+--v1:#A9A4F3;--v1b:#2A2A52;--v2:#E89463;--v2b:#3A2519;--v3:#E888B0;--v3b:#3A1C2A;--v4:#9FB0BA;--v4b:#253038;
+--done:#57C9A9;--doneb:#103A31;--warn:#E8796E;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--text);font-size:17px;line-height:1.65;-webkit-text-size-adjust:100%}
+.wrap{max-width:940px;margin:0 auto;padding:34px 20px 56px}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+h1{font-family:var(--code);font-size:30px;font-weight:600;letter-spacing:-.6px;margin:0 0 12px}
+h2{font-family:var(--code);font-size:16px;font-weight:600;margin:0 0 10px}
+.lede{margin:0;max-width:60ch;color:var(--ink2)}
+.stage{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:16px 16px 20px;margin:26px 0 30px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px}
+.grow{flex:1 1 40px}
+button{font-family:var(--code);font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--rule2);border-radius:6px;padding:6px 12px;cursor:pointer;line-height:1.4}
+button:hover{background:var(--paper)}
+button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--v1);outline-offset:2px}
+label.sw{display:flex;align-items:center;gap:7px;font-family:var(--code);font-size:13px;color:var(--ink2);cursor:pointer}
+.num{font-family:var(--code);font-size:13px;color:var(--ink2)}
+#scrub{flex:1 1 120px;min-width:100px;accent-color:var(--v1)}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--code)}
+.s-val{font-size:15px;font-weight:600;fill:var(--ink)}
+.s-sm{font-size:12px;fill:var(--ink2)}
+.s-tag{font-size:12.5px}
+.cellbox{fill:var(--cell);stroke:var(--rule2);stroke-width:1}
+.cellbox.done{fill:var(--doneb);stroke:var(--done)}
+.lost{opacity:.36}
+.tag rect{stroke-width:1}
+.t-anterior rect{fill:var(--v1b);stroke:var(--v1)}.t-anterior text{fill:var(--v1)}
+.t-atual rect{fill:var(--v2b);stroke:var(--v2)}.t-atual text{fill:var(--v2)}
+.t-proximo rect{fill:var(--v3b);stroke:var(--v3)}.t-proximo text{fill:var(--v3)}
+.t-topo rect{fill:var(--v4b);stroke:var(--v4)}.t-topo text{fill:var(--v4)}
+.split{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:30px;align-items:start}
+.code{font-family:var(--code);font-size:13px;line-height:1.9;white-space:pre;overflow-x:auto}
+.ln{display:flex;gap:12px;padding:0 6px;border-radius:4px}
+.ln.on{background:var(--v1b)}
+.no{color:var(--rule2);width:16px;text-align:right;flex:none}
+.kw{color:var(--v1)}.ty{font-weight:600}.cm{color:var(--ink2)}
+.gh{color:var(--warn);text-decoration:line-through;opacity:.7}
+.meta{font-family:var(--code);font-size:12.5px;color:var(--ink2);margin:0 0 10px}
+.msg{margin:0 0 14px;font-size:16px}
+.msg code,.notes code{font-family:var(--code);font-size:.88em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--code);font-size:12.5px;border:1px solid var(--rule);border-radius:6px;padding:3px 9px;color:var(--ink2)}
+.chip.hi{border-color:var(--v1);color:var(--v1)}
+.chip.off{opacity:.5}
+.quiz{border:1px solid var(--v1);border-radius:8px;padding:12px 14px;margin:0 0 14px}
+.quiz p{margin:0 0 10px;font-size:16px}
+.quiz .opts{display:flex;flex-wrap:wrap;gap:6px}
+.fb{font-family:var(--code);font-size:12.5px;color:var(--warn);margin:10px 0 0;min-height:1em}
+.ok{color:var(--done)}
+.notes{max-width:66ch;margin:34px 0 0}
+.notes p{margin:0 0 14px}
+.notes ul{margin:0;padding-left:20px}
+.notes li{margin-bottom:6px}
+.foot{font-family:var(--code);font-size:12.5px;color:var(--ink2);margin-top:38px;border-top:1px solid var(--rule);padding-top:14px}
+@media (max-width:760px){.split{grid-template-columns:1fr}h1{font-size:25px}body{font-size:16px}}
+@media (prefers-reduced-motion:no-preference){@keyframes pop{from{opacity:.15}to{opacity:1}}.pop{animation:pop .4s ease}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+<div>
+<h1>Pilha.inverter()</h1>
+<p class="lede">Uma pilha encadeada se inverte sem criar nem mover célula nenhuma: só virando os ponteiros, um por vez. Avance passo a passo e veja onde cada variável está em cada linha.</p>
+</div>
+<button id="theme" aria-label="Alternar tema claro e escuro">tema</button>
+</div>
+
+<div class="stage">
+<div class="bar">
+<button id="tabok" class="on">versão correta</button>
+<button id="tabbug">sem guardar o proximo</button>
+<span class="grow"></span>
+<span class="num">células</span>
+<button id="minus" aria-label="Menos células">−</button>
+<span class="num" id="nout" style="min-width:12px;text-align:center">4</span>
+<button id="plus" aria-label="Mais células">+</button>
+<label class="sw"><input type="checkbox" id="quiz"> modo desafio</label>
+</div>
+<div id="svgwrap" role="img" aria-label="Diagrama da pilha encadeada com as células, os ponteiros prox e as variáveis topo, anterior, atual e proximo"></div>
+<div class="bar" style="margin:10px 0 0">
+<button id="reset">reiniciar</button>
+<button id="prev" aria-label="Voltar um passo">◀</button>
+<button id="next">avançar ▶</button>
+<button id="play" aria-label="Reproduzir">▶</button>
+<input type="range" id="scrub" min="0" max="1" value="0" step="1" aria-label="Linha do tempo dos passos">
+</div>
+</div>
+
+<div class="split">
+<div>
+<h2>o método</h2>
+<div class="code" id="code"></div>
+</div>
+<div>
+<h2>o que acontece agora</h2>
+<p class="meta" id="meta"></p>
+<p class="msg" id="msg"></p>
+<div id="quizbox"></div>
+<div class="chips" id="watch"></div>
+</div>
+</div>
+
+<div class="notes">
+<h2>por que a linha do proximo existe</h2>
+<p>Dentro do laço, <code>atual.prox = anterior</code> apaga o único caminho que sobrava até o resto da pilha. Guardar <code>proximo</code> antes disso é o que permite continuar andando. Abra a aba <em>sem guardar o proximo</em> com 3 ou 4 células: o laço encerra na primeira volta e todo o resto da pilha vira lixo para o coletor do Java.</p>
+<p>Duas coisas que o diagrama deixa explícitas: <code>topo</code> continua apontando para a célula antiga durante o laço inteiro e só recebe <code>anterior</code> no fim; e <code>proximo</code> é declarada dentro do <code>while</code>, então deixa de existir a cada volta.</p>
+<p>Custo: tempo O(n), memória extra O(1). Nenhuma célula nova, nenhuma cópia de dados — mudam só os n ponteiros.</p>
+<h2>o que testar</h2>
+<ul>
+<li>Pilha com 0 e com 1 célula: o método aguenta os dois sem nenhum <code>if</code> extra.</li>
+<li>Com 1 célula, a versão bugada passa despercebida. É o argumento para testar sempre com 2 ou mais.</li>
+<li>Modo desafio: prever para onde cada ponteiro vai antes de ver o passo.</li>
+<li>Setas ← e → do teclado navegam os passos.</li>
+</ul>
+</div>
+
+<p class="foot">Arquivo único, funciona offline. Pode copiar, editar e repassar à vontade.</p>
+</div>
+<noscript><p style="font-family:monospace">Esta página precisa de JavaScript para animar os passos.</p></noscript>
+<script>
+(function(){
+var NL=-1,NR=-2,CW=92,VW=54,CH=46,G=36,NW=56,CY=118,VB=900;
+var n=4,mode='ok',steps=[],idx=0,quizOn=false,answered={},pending=null,feedback='',timer=null;
+function $(i){return document.getElementById(i);}
+function val(k){return (n-k)*10;}
+
+function simulate(){
+var S=[],prox=[],done=new Array(n).fill(false),V={topo:n>0?0:NL},bug=mode==='bug',iter=0,safety=0;
+for(var k=0;k<n;k++)prox.push(k<n-1?k+1:NR);
+var ref=function(v){return v>=0?'a célula <b>'+val(v)+'</b>':'<code>null</code>';};
+var rs=function(v){return v>=0?'<b>'+val(v)+'</b>':'<code>null</code>';};
+var chain=function(st){var p=[],v=st,g=0;while(v>=0&&g++<20){p.push(val(v));v=prox[v];}p.push('null');return p.join(' → ');};
+var push=function(line,msg,o){var s={line:line,msg:msg,iter:iter,prox:prox.slice(),vars:{},done:done.slice()};
+for(var key in V)s.vars[key]=V[key];
+if(o)for(var k2 in o)s[k2]=o[k2];S.push(s);};
+var listed=function(){var a=[];for(var k=1;k<=n;k++)a.push(k*10);return a.length>1?a.slice(0,-1).join(', ')+' e '+a[a.length-1]:''+a[0];};
+var lost=function(){var a=[];for(var k=1;k<n;k++)a.push('<b>'+val(k)+'</b>');return a.length>1?a.slice(0,-1).join(', ')+' e '+a[a.length-1]:a[0];};
+
+if(n===0)push('sig','Estado inicial: a pilha está vazia, <code>topo</code> é <code>null</code>. Vale ver como o método se comporta nesse caso.');
+else push('sig',(bug?'Mesma ideia da versão certa, mas sem guardar <code>atual.prox</code> antes de sobrescrevê-lo. Veja o estrago. ':'')+'Estado inicial: empilhamos '+listed()+', por isso <b>'+val(0)+'</b> está no topo. Cada célula guarda um elemento e o ponteiro <code>prox</code>. A meta é inverter a ordem sem criar célula nova: só virando os <code>prox</code>.');
+
+V.anterior=NL;
+push('a0',n>0?'<code>anterior</code> começa em <code>null</code> — ela marca o início da parte já invertida, que ainda está vazia. E faz sentido: a célula do topo vai virar a última, então o <code>prox</code> dela precisa ser <code>null</code>.':'<code>anterior</code> começa em <code>null</code>.',{cv:'anterior'});
+V.atual=V.topo;
+push('a1',n>0?'<code>atual</code> começa no topo ('+ref(0)+'): é o início da parte que ainda falta inverter.':'<code>atual</code> recebe <code>topo</code>, que é <code>null</code>.',{cv:'atual'});
+
+while(safety++<40){
+delete V.proximo;
+var cont=V.atual>=0;
+if(cont)iter++;
+var m;
+if(cont){
+if(iter===1)m='Iteração 1: <code>atual</code> é '+ref(V.atual)+', diferente de <code>null</code> → entra no laço. O padrão que se repete a cada volta: <code>anterior</code> é o começo da parte já invertida e <code>atual</code> o começo do que falta.';
+else if(iter===2)m='Iteração 2: <code>atual</code> é '+ref(V.atual)+' → continua. Repare que <code>proximo</code> sumiu: ela é declarada dentro do <code>while</code>, então só existe durante uma volta.';
+else m='Iteração '+iter+': <code>atual</code> é '+ref(V.atual)+' → mais uma volta.';
+}else if(n===0)m='<code>atual</code> já é <code>null</code>, então o corpo do laço nunca roda. Pilha vazia não quebra o método.';
+else if(bug&&n>1)m='<code>atual</code> é <code>null</code> → o laço acaba aqui, depois de <b>1</b> volta só. Deveriam ser '+n+'.';
+else m='<code>atual</code> é <code>null</code>: acabaram as células → sai do laço. '+(n>1?'Foram '+n+' iterações, uma por célula.':'Foi 1 iteração.');
+push('w',m,{cond:cont});
+if(!cont)break;
+
+var a=V.atual,before=prox[a];
+if(!bug){
+V.proximo=before;
+push('l4',before>=0?'<code>proximo</code> guarda '+ref(before)+' — o resto da pilha. Essa linha é o seguro do algoritmo: a próxima vai apagar <code>atual.prox</code>.':'<code>proximo</code> recebe <code>atual.prox</code>, que é <code>null</code>: '+ref(a)+' é a última célula da pilha original.',{cv:'proximo',quiz:{q:'Para onde <code>proximo</code> vai apontar?',a:before,h:'Dica: é o prox de atual, ainda intacto.'}});
+}
+var ant=V.anterior;
+var qz5={q:'Depois de <code>atual.prox = anterior</code>, para onde o <code>prox</code> de <b>'+val(a)+'</b> vai apontar?',a:ant,h:'Dica: olhe para onde anterior está agora.'};
+prox[a]=ant;done[a]=true;
+var m5;
+if(bug)m5=(n>1?'O <code>prox</code> de <b>'+val(a)+'</b> vira <code>null</code> — mas ninguém guardou o endereço de <b>'+val(before)+'</b>. A partir daqui nenhuma variável alcança '+lost()+'.':'O <code>prox</code> de <b>'+val(a)+'</b> vira <code>null</code>. Com uma célula só, não há o que perder.');
+else m5=(ant<0?'A linha principal: o <code>prox</code> de <b>'+val(a)+'</b> vira <code>null</code>. O antigo topo acaba de virar a <b>última</b> célula.':'A linha principal: o <code>prox</code> de <b>'+val(a)+'</b> deixa de apontar para '+rs(before)+' e passa a apontar para trás, para <b>'+val(ant)+'</b>. Parte invertida: '+chain(a)+'.');
+push('l5',m5,{cc:a,quiz:qz5});
+
+V.anterior=a;
+push('l6',bug?'<code>anterior</code> avança para '+ref(a)+'.':'<code>anterior</code> avança para '+ref(a)+': novo começo da parte invertida ('+chain(a)+').',{cv:'anterior'});
+
+var nv=bug?prox[a]:V.proximo;
+var qz7=bug?{q:'Pegadinha: <code>atual = atual.prox</code> leva para onde?',a:nv,h:'Dica: atual.prox foi alterado duas linhas atrás.'}:{q:'E agora, para onde <code>atual</code> vai?',a:nv,h:'Dica: proximo já guardou essa resposta.'};
+V.atual=nv;
+var m7;
+if(bug)m7=(n>1?'<code>atual = atual.prox</code> — só que <code>atual.prox</code> foi sobrescrito duas linhas atrás: vale <code>null</code>, e não '+rs(before)+'. O laço morre na primeira volta.':'<code>atual</code> vira <code>null</code>. Com uma célula só o bug fica invisível — por isso é preciso testar com 2 ou mais.');
+else m7=(nv>=0?'<code>atual</code> avança para <code>proximo</code> ('+rs(nv)+'). Só dá para chegar lá porque guardamos esse endereço antes de inverter o ponteiro.':'<code>atual</code> recebe <code>proximo</code>, que é <code>null</code>: chegamos ao fim da pilha original.');
+push('l7',m7,{cv:'atual',quiz:qz7});
+}
+
+var antF=V.anterior;V.topo=antF;
+var m9;
+if(n===0)m9='<code>topo = anterior</code>: os dois são <code>null</code>, a pilha continua vazia.';
+else m9='Fora do laço, <code>anterior</code> está na última célula processada ('+ref(antF)+') — o novo topo.'+(n>1?' Até esta linha <code>topo</code> ainda apontava para <b>'+val(0)+'</b>, que virou a última.':'');
+push('l9',m9,{cv:'topo',quiz:n>0?{q:'Para onde <code>topo</code> vai apontar?',a:antF,h:'Dica: topo recebe anterior.'}:null});
+
+delete V.anterior;delete V.atual;delete V.proximo;
+var mf;
+if(n===0)mf='Nada a inverter. O método trata a pilha vazia sem precisar de nenhum <code>if</code> extra.';
+else if(bug)mf=(n>1?'Resultado: <code>topo</code> → '+chain(V.topo)+'. A pilha tinha '+n+' elementos e ficou com <b>1</b>: '+lost()+(n>2?' viraram lixo':' virou lixo')+' para o coletor do Java. A linha <code>Celula proximo = atual.prox;</code> é exatamente o que evita isso.':'Resultado: <code>topo</code> → '+chain(V.topo)+'. Com uma célula só, o bug passa despercebido.');
+else mf='Pronto. As variáveis locais somem e sobra o <code>topo</code>: '+chain(V.topo)+'. Nenhuma célula foi criada ou movida — mudaram só os '+n+' ponteiros <code>prox</code>. Tempo O(n), memória extra O(1).';
+push('fim',mf);
+return S;
+}
+
+function reach(s){var r=new Array(n).fill(false);
+for(var key in s.vars){var v=s.vars[key],g=0;while(v>=0&&!r[v]&&g++<40){r[v]=true;v=s.prox[v];}}
+return r;}
+
+function head(x,y,dir,col){
+if(dir==='r')return '<path d="M'+x+' '+y+' L'+(x-8)+' '+(y-4.5)+' L'+(x-8)+' '+(y+4.5)+' Z" fill="'+col+'"/>';
+if(dir==='u')return '<path d="M'+x+' '+y+' L'+(x-4.5)+' '+(y+8)+' L'+(x+4.5)+' '+(y+8)+' Z" fill="'+col+'"/>';
+return '<path d="M'+x+' '+y+' L'+(x-4.5)+' '+(y-8)+' L'+(x+4.5)+' '+(y-8)+' Z" fill="'+col+'"/>';}
+
+function svgFor(s){
+var cs=getComputedStyle(document.documentElement);
+var C={rule:cs.getPropertyValue('--rule2').trim(),done:cs.getPropertyValue('--done').trim(),
+anterior:cs.getPropertyValue('--v1').trim(),atual:cs.getPropertyValue('--v2').trim(),
+proximo:cs.getPropertyValue('--v3').trim(),topo:cs.getPropertyValue('--v4').trim(),
+warn:cs.getPropertyValue('--warn').trim(),ink2:cs.getPropertyValue('--ink2').trim()};
+var total=n>0?(NW+G)*2+n*CW+(n-1)*G:NW,x0=Math.round((VB-total)/2);
+var cx=function(k){return x0+NW+G+k*(CW+G);};
+var slotL=x0,slotR=n>0?cx(n-1)+CW+G:x0,r=reach(s);
+var o='<svg viewBox="0 0 '+VB+' 236" xmlns="http://www.w3.org/2000/svg">';
+var tg={};
+['atual','proximo','anterior','topo'].forEach(function(name){
+if(!(name in s.vars))return;var v=s.vars[name];
+var key=v>=0?'c'+v:((v===NL||n===0)?'L':'R');
+if(!tg[key])tg[key]=[];tg[key].push(name);});
+
+var slot=function(x){return '<rect x="'+x+'" y="124" width="56" height="34" rx="5" fill="none" stroke="'+C.rule+'" stroke-dasharray="4 4"/><text class="s-sm" x="'+(x+28)+'" y="146" text-anchor="middle">null</text>';};
+if(tg.L)o+=slot(slotL);
+if(tg.R)o+=slot(slotR);
+
+for(var k=0;k<n;k++){
+var X=cx(k),lo=!r[k],g0=lo?'<g class="lost">':'<g>';
+o+=g0+'<rect class="cellbox'+(!lo&&s.done[k]?' done':'')+'" x="'+X+'" y="'+CY+'" width="'+CW+'" height="'+CH+'" rx="5"'+(lo?' stroke-dasharray="5 4"':'')+'/>';
+o+='<line x1="'+(X+VW)+'" y1="'+CY+'" x2="'+(X+VW)+'" y2="'+(CY+CH)+'" stroke="'+C.rule+'"/>';
+o+='<text class="s-val" x="'+(X+27)+'" y="'+(CY+28)+'" text-anchor="middle">'+val(k)+'</text>';
+var p=s.prox[k],hi=s.cc===k,col=(s.done[k]&&!lo)?C.done:C.rule,w=hi?2:1.2,pc=hi?' class="pop"':'';
+var dx=X+73,dy=CY+23;
+if(p<0){o+='<line'+pc+' x1="'+(X+58)+'" y1="'+(CY+40)+'" x2="'+(X+88)+'" y2="'+(CY+6)+'" stroke="'+col+'" stroke-width="'+w+'"/>';}
+else{o+='<circle cx="'+dx+'" cy="'+dy+'" r="3" fill="'+col+'"/>';
+if(p>k)o+='<g'+pc+'><line x1="'+dx+'" y1="'+dy+'" x2="'+(cx(p)-10)+'" y2="'+dy+'" stroke="'+col+'" stroke-width="'+w+'"/>'+head(cx(p)-2,dy,'r',col)+'</g>';
+else{var tx=cx(p)+46;
+o+='<g'+pc+'><path d="M'+dx+' '+dy+' L'+dx+' 173 Q'+dx+' 180 '+(dx-7)+' 180 L'+(tx+7)+' 180 Q'+tx+' 180 '+tx+' 174" fill="none" stroke="'+col+'" stroke-width="'+w+'"/>'+head(tx,167,'u',col)+'</g>';}}
+o+='</g>';}
+
+if(s.vars.atual>=0&&['w','l4','l5','l6'].indexOf(s.line)>=0){var AX=cx(s.vars.atual);
+o+='<rect x="'+(AX-4)+'" y="'+(CY-4)+'" width="'+(CW+8)+'" height="'+(CH+8)+'" rx="8" fill="none" stroke="'+C.atual+'" stroke-width="1.8"/>';}
+
+if(n>0){var st=function(i){return !r[i]?'lost':(s.done[i]?'done':'todo');},k2=0;
+while(k2<n){var t=st(k2),j=k2;while(j+1<n&&st(j+1)===t)j++;
+var x1=cx(k2)+4,x2=cx(j)+CW-4,mid=(x1+x2)/2;
+var cl=t==='done'?C.done:(t==='lost'?C.warn:C.ink2);
+var lab=t==='done'?'já invertida':(t==='lost'?(j>k2?'perdidas':'perdida'):'falta inverter');
+o+='<path d="M'+x1+' 196 L'+x1+' 201 L'+x2+' 201 L'+x2+' 196" fill="none" stroke="'+cl+'" stroke-width="1" opacity=".75"/>';
+o+='<text class="s-sm" x="'+mid+'" y="219" text-anchor="middle" fill="'+cl+'">'+lab+'</text>';
+k2=j+1;}}
+
+for(var key in tg){
+var isSlot=key==='L'||key==='R';
+var cxx=key==='L'?slotL+28:(key==='R'?slotR+28:cx(+key.slice(1))+46);
+(function(list,cxx,isSlot){
+for(var i=0;i<list.length;i++){var name=list[i],y=74-i*29;
+o+='<g class="tag t-'+name+(s.cv===name?' pop':'')+'"><rect x="'+(cxx-42)+'" y="'+y+'" width="84" height="24" rx="5"/><text class="s-tag" x="'+cxx+'" y="'+(y+16)+'" text-anchor="middle">'+name+'</text></g>';
+if(i===0){var col=C[name],yb=isSlot?120:114;
+o+='<line x1="'+cxx+'" y1="98" x2="'+cxx+'" y2="'+(yb-8)+'" stroke="'+col+'" stroke-width="1.4"/>'+head(cxx,yb,'d',col);}}
+})(tg[key],cxx,isSlot);}
+return o+'</svg>';}
+
+function codeLines(){
+var kw=function(t){return '<span class="kw">'+t+'</span>';},ty=function(t){return '<span class="ty">'+t+'</span>';},cm=function(t){return '<span class="cm">'+t+'</span>';};
+var b=[['sig','',kw('public')+' '+kw('void')+' inverter() {'],
+['a0','','    '+ty('Celula')+' anterior = '+kw('null')+';'],
+['a1','','    '+ty('Celula')+' atual = topo;'],
+['w','','    '+kw('while')+' (atual != '+kw('null')+') {']];
+if(mode==='ok'){
+b.push(['c4','l4','        '+cm('// guarda o resto da pilha')]);
+b.push(['l4','','        '+ty('Celula')+' proximo = atual.prox;']);
+b.push(['c5','l5','        '+cm('// inverte o ponteiro')]);
+b.push(['l5','','        atual.prox = anterior;']);
+b.push(['l6','','        anterior = atual;']);
+b.push(['l7','','        atual = proximo;']);
+}else{
+b.push(['gh','','        <span class="gh">Celula proximo = atual.prox;</span>']);
+b.push(['l5','','        atual.prox = anterior;']);
+b.push(['l6','','        anterior = atual;']);
+b.push(['c7','l7','        '+cm('// atual.prox já mudou!')]);
+b.push(['l7','','        atual = atual.prox;']);}
+b.push(['endw','','    }']);b.push(['l9','','    topo = anterior;']);b.push(['fim','','}']);
+return b;}
+
+function renderCode(){
+$('code').innerHTML=codeLines().map(function(l,i){
+return '<div class="ln" data-id="'+l[0]+'" data-g="'+l[1]+'"><span class="no">'+(i+1)+'</span><span>'+l[2]+'</span></div>';}).join('');}
+
+function renderWatch(s){
+$('watch').innerHTML=['topo','anterior','atual','proximo'].map(function(nm){
+var has=nm in s.vars,v=s.vars[nm],txt=has?(v>=0?val(v):'null'):'—';
+var cl='chip'+(has?'':' off')+(s.cv===nm?' hi':'');
+return '<span class="'+cl+'"'+(has?'':' title="fora de escopo"')+'>'+nm+': '+txt+'</span>';}).join('');}
+
+function renderQuiz(){
+var box=$('quizbox');
+if(pending===null){box.innerHTML='';return;}
+var q=steps[pending].quiz,opts='';
+for(var k=0;k<n;k++)opts+='<button data-v="'+k+'">'+val(k)+'</button>';
+opts+='<button data-v="null">null</button><button data-v="skip">ver resposta</button>';
+box.innerHTML='<div class="quiz"><p>'+q.q+'</p><div class="opts">'+opts+'</div><p class="fb" id="fb"></p></div>';
+var bs=box.getElementsByTagName('button');
+for(var i=0;i<bs.length;i++)(function(b){b.onclick=function(){pick(b.getAttribute('data-v'),q);};})(bs[i]);}
+
+function pick(v,q){
+if(v==='skip'){answered[pending]=1;feedback='';var i=pending;pending=null;idx=i;render();return;}
+var ok=(q.a>=0&&v===String(q.a))||(q.a<0&&v==='null');
+if(ok){answered[pending]=1;feedback='Isso.';var j=pending;pending=null;idx=j;render();}
+else $('fb').textContent=q.h;}
+
+function render(){
+var s=steps[idx];
+$('svgwrap').innerHTML=svgFor(s);
+var lns=$('code').children;
+for(var i=0;i<lns.length;i++){
+var on=lns[i].getAttribute('data-id')===s.line||lns[i].getAttribute('data-g')===s.line;
+lns[i].className=on?'ln on':'ln';}
+var inLoop=['l4','l5','l6','l7'].indexOf(s.line)>=0||(s.line==='w'&&s.cond);
+$('meta').textContent='passo '+(idx+1)+' de '+steps.length+' · '+(inLoop?'iteração '+s.iter:'fora do laço');
+$('msg').innerHTML=(feedback?'<span class="ok">'+feedback+'</span> ':'')+s.msg;
+$('scrub').value=idx;
+renderWatch(s);renderQuiz();}
+
+function stop(){if(timer){clearInterval(timer);timer=null;}$('play').textContent='▶';}
+function next(){
+if(pending!==null)return;
+if(idx>=steps.length-1){stop();return;}
+var ni=idx+1;
+if(quizOn&&steps[ni].quiz&&!answered[ni]){pending=ni;stop();render();return;}
+feedback='';idx=ni;render();}
+function prev(){if(idx>0){pending=null;feedback='';idx--;render();}}
+function rebuild(){stop();steps=simulate();idx=0;answered={};pending=null;feedback='';
+$('scrub').max=steps.length-1;$('nout').textContent=n;renderCode();render();}
+
+$('next').onclick=next;$('prev').onclick=prev;
+$('reset').onclick=function(){stop();pending=null;feedback='';idx=0;render();};
+$('play').onclick=function(){if(timer){stop();return;}$('play').textContent='❚❚';
+timer=setInterval(function(){if(pending!==null||idx>=steps.length-1){stop();return;}next();},1500);};
+$('scrub').oninput=function(){stop();pending=null;feedback='';idx=+this.value;render();};
+$('quiz').onchange=function(){quizOn=this.checked;pending=null;render();};
+$('minus').onclick=function(){if(n>0){n--;rebuild();}};
+$('plus').onclick=function(){if(n<5){n++;rebuild();}};
+$('tabok').onclick=function(){if(mode==='ok')return;mode='ok';this.className='on';$('tabbug').className='';rebuild();};
+$('tabbug').onclick=function(){if(mode==='bug')return;mode='bug';this.className='on';$('tabok').className='';rebuild();};
+$('theme').onclick=function(){
+var cur=document.documentElement.getAttribute('data-theme');
+if(!cur)cur=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+var nx=cur==='dark'?'light':'dark';
+document.documentElement.setAttribute('data-theme',nx);
+try{localStorage.setItem('inverter-tema',nx);}catch(e){}
+render();};
+document.addEventListener('keydown',function(e){
+if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON'))return;
+if(e.key==='ArrowRight'){next();e.preventDefault();}
+if(e.key==='ArrowLeft'){prev();e.preventDefault();}});
+try{var t=localStorage.getItem('inverter-tema');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}
+rebuild();
+})();
+</script>
+</body>
+</html>

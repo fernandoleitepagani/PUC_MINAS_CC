@@ -84,7 +84,7 @@ class Veiculo {
   public String formatVeiculo() {
     String comb = "";
     for (int i = 0; i < combustivel.length; i++) {
-      if (i > 0) comb += ";";
+      if (i > 0) comb += ",";
       comb += combustivel[i];
     }
 
@@ -133,11 +133,16 @@ public class model1_java {
     Scanner sc = new Scanner(System.in);
 
     int id = 0;
-    while (sc.hasNextInt() && id != -1) {
+    boolean fim = false;
+
+    while (sc.hasNextInt() && !fim) {
       id = sc.nextInt();
-      int i = 0;
-      while (id!=-1 && i < veiculos.length && veiculos[i].getId() != id) i++;
-      System.out.println(veiculos[i].formatVeiculo());
+      if (id==-1) fim=true;
+      else{
+	int i = 0;
+	while (i < veiculos.length && veiculos[i].getId() != id) i++;
+	System.out.println(veiculos[i].formatVeiculo());
+      }
     }
     sc.close();
   }

@@ -1,0 +1,53 @@
+plu-cc-2026-2-ti2-4354100-plu-cc-2026-2-ti2-4354100-group-7/
+├── CITATION.cff
+├── codigo
+│   ├── db
+│   │   └── db.json
+│   ├── public
+│   │   ├── about.html
+│   │   ├── assets
+│   │   │   ├── css
+│   │   │   │   └── style.css
+│   │   │   ├── images
+│   │   │   │   ├── arquivo_json.png
+│   │   │   │   ├── banner_ti.png
+│   │   │   │   ├── dinamica_web.png
+│   │   │   │   └── servidor.png
+│   │   │   └── js
+│   │   │       └── login.js
+│   │   ├── home.html
+│   │   ├── index.html
+│   │   └── modulos
+│   │       └── login
+│   │           ├── index.html
+│   │           └── login.html
+│   └── README.md
+├── docs
+│   ├── files
+│   │   ├── Apresentação - MediFlow Consultório Médico Sem Secretária.pdf
+│   │   ├── Documentacao_do_Projeto_TI_ICEI_PUCMinas-1.pdf
+│   │   ├── MediFlow_Projeto_Interfaces.pdf
+│   │   └── processo-dt.pdf
+│   ├── images
+│   │   ├── exemplo-arquitetura.png
+│   │   ├── exemplo-funcionalidade.png
+│   │   ├── exemplo-kanban.png
+│   │   ├── exemplo-persona.png
+│   │   ├── exemplo-proposta-valor.png
+│   │   ├── exemplo-userflow.png
+│   │   ├── exemplo-wireframe.png
+│   │   ├── exemplo-workflow.png
+│   │   └── video.png
+│   └── README.md
+├── LICENSE
+├── package.json
+├── README.md
+└── templates
+    ├── template-apresentacao.pptx
+    ├── Template-README_1.md
+    ├── TIAW - Orientação de Avaliação - EXEMPLO.docx
+    ├── TIAW - Orientação de Avaliação - TEMPLATE.docx
+    ├── TIAW - Planejamento Sprint.docx
+    └── TIAW - Planejamento Sprint - EXEMPLO.docx
+
+14 directories, 37 files

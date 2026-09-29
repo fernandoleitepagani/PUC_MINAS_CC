@@ -1,0 +1,10 @@
+QUESTOES DA PROVA D ENGENHARIA DE SOFTWARE
+
+Q1: questao sobre como atua o engenherio de software;
+Q2: questão sobre processos pra criação de software e tem haver com scrum, processo agil tal tal, explicar como funciona
+
+
+pras Q1 e Q2 tem q saber oq o engenheiro faz, como atua e como ta inserido: especialmente processo agil, scrum e kanban
+
+
+Q3: descobrir historia de usuario, lista de requisitos funcionais e requisitos nao funcionais, cenarios de confirmação

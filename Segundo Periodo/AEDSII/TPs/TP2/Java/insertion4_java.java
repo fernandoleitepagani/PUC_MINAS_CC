@@ -84,7 +84,7 @@ class Veiculo {
   public String formatVeiculo() {
     String comb = "";
     for (int i = 0; i < combustivel.length; i++) {
-      if (i > 0) comb += ";";
+      if (i > 0) comb += ",";
       comb += combustivel[i];
     }
 
@@ -168,14 +168,18 @@ public class insertion4_java {
     Veiculo[] selecionados = new Veiculo[1000];
     int m = 0;
     int id = 0;
+    boolean fim = false;
 
-    while (sc.hasNextInt() && id!=-1) {
+    while (sc.hasNextInt() && !fim) {
       id = sc.nextInt();
-      int i=0;
-      while(i<veiculos.length && veiculos[i].getId()!=id && id!=-1){i++;}
-      selecionados[m++] = veiculos[i];
+      if (id == -1) { fim = true; } 
+      else {
+	int i = 0;
+	while (i < veiculos.length && veiculos[i].getId() != id) { i++; }
+	selecionados[m++] = veiculos[i];
+      }
     }
-
+    
     /* funcao insercao */
     InsertionSort.insercao(selecionados, m);
     

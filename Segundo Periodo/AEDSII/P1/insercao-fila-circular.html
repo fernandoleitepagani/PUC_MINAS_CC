@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>insercao1() — ordenação por inserção numa fila circular</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8ecf4;
+  --panel:#fbfcfe;
+  --panel-2:#f0f3f9;
+  --line:#d2d9e8;
+  --line-soft:#e3e8f2;
+  --ink:#131c33;
+  --ink-2:#4a5570;
+  --ink-3:#7b859e;
+  --code-bg:#f4f6fc;
+  --code-line:#e6eaf6;
+  --cell:#ffffff;
+  --cell-line:#c7cfe2;
+  --free:#e6eaf3;
+  --shadow:0 1px 2px rgba(19,28,51,.06), 0 8px 24px -12px rgba(19,28,51,.18);
+
+  --c-primeiro:#1d7fd4;
+  --c-ultimo:#7c5cd6;
+  --c-antes:#d2365c;
+  --c-i:#b4690e;
+  --c-j:#0e9f6e;
+  --c-tmp:#a8399c;
+
+  --ok-bg:rgba(14,159,110,.13);
+  --ok-line:rgba(14,159,110,.55);
+  --hole-bg:rgba(180,105,14,.10);
+  --hole-line:rgba(180,105,14,.75);
+  --sent-bg:rgba(210,54,92,.08);
+  --sent-line:rgba(210,54,92,.55);
+
+  --kw:#a8399c; --num:#b4690e; --cm:#7b859e; --fn:#1d7fd4; --var:#0e9f6e; --cst:#d2365c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1220; --panel:#151c2b; --panel-2:#1b2333; --line:#2a3447; --line-soft:#222b3c;
+    --ink:#e2e8f6; --ink-2:#a6b0c8; --ink-3:#7d8aa5;
+    --code-bg:#121827; --code-line:#1f2839; --cell:#1e2739; --cell-line:#39445c; --free:#1a2130;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+    --c-primeiro:#58b2f5; --c-ultimo:#b096f5; --c-antes:#ff7a9c; --c-i:#f0ab4c; --c-j:#3ed9a0; --c-tmp:#e77fda;
+    --ok-bg:rgba(62,217,160,.14); --ok-line:rgba(62,217,160,.5);
+    --hole-bg:rgba(240,171,76,.12); --hole-line:rgba(240,171,76,.7);
+    --sent-bg:rgba(255,122,156,.10); --sent-line:rgba(255,122,156,.45);
+    --kw:#e77fda; --num:#f0ab4c; --cm:#6f7c96; --fn:#58b2f5; --var:#3ed9a0; --cst:#ff7a9c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1220; --panel:#151c2b; --panel-2:#1b2333; --line:#2a3447; --line-soft:#222b3c;
+  --ink:#e2e8f6; --ink-2:#a6b0c8; --ink-3:#7d8aa5;
+  --code-bg:#121827; --code-line:#1f2839; --cell:#1e2739; --cell-line:#39445c; --free:#1a2130;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+  --c-primeiro:#58b2f5; --c-ultimo:#b096f5; --c-antes:#ff7a9c; --c-i:#f0ab4c; --c-j:#3ed9a0; --c-tmp:#e77fda;
+  --ok-bg:rgba(62,217,160,.14); --ok-line:rgba(62,217,160,.5);
+  --hole-bg:rgba(240,171,76,.12); --hole-line:rgba(240,171,76,.7);
+  --sent-bg:rgba(255,122,156,.10); --sent-line:rgba(255,122,156,.45);
+  --kw:#e77fda; --num:#f0ab4c; --cm:#6f7c96; --fn:#58b2f5; --var:#3ed9a0; --cst:#ff7a9c;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Space Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.5;
+  padding:22px 16px 64px;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px;margin:0 auto}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+/* ---------- header ---------- */
+header{margin-bottom:18px}
+h1{
+  font-size:clamp(22px,3.4vw,31px); line-height:1.15; margin:0 0 6px;
+  font-weight:600; letter-spacing:-.02em;
+}
+h1 code{font-size:.92em;font-weight:700;color:var(--c-primeiro)}
+.lede{margin:0;color:var(--ink-2);max-width:66ch}
+
+/* ---------- panels ---------- */
+.panel{
+  background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  box-shadow:var(--shadow);
+}
+.grid{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);gap:16px;margin-top:16px}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- readouts ---------- */
+.readouts{display:flex;flex-wrap:wrap;gap:7px;padding:13px 14px;border-bottom:1px solid var(--line-soft)}
+.ro{
+  display:inline-flex;align-items:baseline;gap:6px;
+  border:1px solid var(--line);border-radius:7px;padding:3px 8px;
+  background:var(--panel-2);font-size:12px;
+}
+.ro b{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;color:var(--ink)}
+.ro span{color:var(--ink-3)}
+.ro.on{background:transparent}
+.ro-primeiro.on{border-color:var(--c-primeiro)} .ro-primeiro.on span{color:var(--c-primeiro)}
+.ro-ultimo.on{border-color:var(--c-ultimo)} .ro-ultimo.on span{color:var(--c-ultimo)}
+.ro-antes.on{border-color:var(--c-antes)} .ro-antes.on span{color:var(--c-antes)}
+.ro-i.on{border-color:var(--c-i)} .ro-i.on span{color:var(--c-i)}
+.ro-j.on{border-color:var(--c-j)} .ro-j.on span{color:var(--c-j)}
+.ro-tmp.on{border-color:var(--c-tmp)} .ro-tmp.on span{color:var(--c-tmp)}
+
+/* ---------- ring ---------- */
+.ringbox{padding:4px 8px 0}
+svg#ring{display:block;width:100%;height:auto}
+.guide{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:2 6}
+.qarc{fill:none;stroke:var(--c-primeiro);stroke-width:2.5;opacity:.35;stroke-linecap:round}
+.cellrect{fill:var(--cell);stroke:var(--cell-line);stroke-width:1.4;rx:8}
+.cellval{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.idx{font-family:"JetBrains Mono",monospace;font-size:11px;fill:var(--ink-3);text-anchor:middle;dominant-baseline:central}
+g.free .cellrect{fill:var(--free);stroke:var(--line);stroke-dasharray:3 4}
+g.free .cellval{fill:var(--ink-3);opacity:.45}
+g.sentinel .cellrect{fill:var(--sent-bg);stroke:var(--c-antes);stroke-dasharray:3 4}
+g.sentinel .cellval{fill:var(--c-antes);opacity:.5}
+g.sorted .cellrect{fill:var(--ok-bg);stroke:var(--ok-line)}
+g.hole .cellrect{fill:var(--hole-bg);stroke:var(--hole-line);stroke-dasharray:4 3}
+g.hole .cellval{fill:var(--c-i);opacity:.35}
+g.iscmp .cellrect{stroke:var(--c-j);stroke-width:3}
+g.iswrote .cellrect{stroke:var(--c-i);stroke-width:3}
+g.iswrote .cellval{fill:var(--c-i)}
+.mkrect{rx:5;stroke-width:1.4}
+.mktext{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.tick{stroke-width:1.4;opacity:.5}
+.centerlab{font-size:11px;fill:var(--ink-3);text-anchor:middle}
+.centerval{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;text-anchor:middle;fill:var(--ink-2)}
+
+/* ---------- strip ---------- */
+.strip-sec{border-top:1px solid var(--line-soft);padding:12px 14px 15px}
+.strip-title{font-size:12.5px;color:var(--ink-2);margin:0 0 10px}
+.strip{display:flex;align-items:flex-end;gap:5px;overflow-x:auto;padding-bottom:6px}
+.scell{flex:0 0 auto;text-align:center;width:46px}
+.smk{height:17px;display:flex;justify-content:center;gap:3px}
+.smk i{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;padding:0 4px;border-radius:4px;line-height:15px;border:1px solid currentColor}
+.smk i.m-i{color:var(--c-i)} .smk i.m-j{color:var(--c-j)} .smk i.m-stop{color:var(--c-antes)}
+.sbox{
+  height:40px;display:flex;align-items:center;justify-content:center;
+  border:1.4px solid var(--cell-line);border-radius:8px;background:var(--cell);
+  font-family:"JetBrains Mono",monospace;font-weight:700;font-size:15px;
+}
+.scell.st-free .sbox{background:var(--free);border-style:dashed;color:var(--ink-3);opacity:.6}
+.scell.st-sentinel .sbox{background:var(--sent-bg);border-color:var(--c-antes);border-style:dashed;color:var(--c-antes);opacity:.65}
+.scell.st-sorted .sbox{background:var(--ok-bg);border-color:var(--ok-line)}
+.scell.st-hole .sbox{background:var(--hole-bg);border-color:var(--hole-line);border-style:dashed;color:var(--c-i);opacity:.55}
+.scell.is-cmp .sbox{border-color:var(--c-j);border-width:2.4px}
+.scell.is-wrote .sbox{border-color:var(--c-i);border-width:2.4px;color:var(--c-i)}
+.sidx{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ink-3);margin-top:4px}
+.wrapmark{flex:0 0 auto;align-self:center;color:var(--ink-3);font-size:15px;padding:0 2px;margin-bottom:14px}
+
+/* ---------- code ---------- */
+.codebox{padding:0;overflow:hidden;display:flex;flex-direction:column}
+pre.code{
+  margin:0;background:var(--code-bg);border-radius:14px 14px 0 0;
+  font-family:"JetBrains Mono",monospace;font-size:12.6px;line-height:1.62;
+  overflow-x:auto;overflow-y:auto;max-height:430px;padding:12px 0;
+}
+.cl{display:block;padding:0 14px 0 0;white-space:pre;border-left:3px solid transparent}
+.cl .ln{display:inline-block;width:34px;text-align:right;margin-right:12px;color:var(--ink-3);opacity:.6;user-select:none}
+.cl.active{background:rgba(29,127,212,.12);border-left-color:var(--c-primeiro)}
+.cl.active .ln{opacity:1;color:var(--c-primeiro)}
+.kw{color:var(--kw)} .num{color:var(--num)} .cm{color:var(--cm);font-style:italic} .fn{color:var(--fn)} .var{color:var(--var)} .cst{color:var(--cst)}
+
+/* ---------- narration ---------- */
+.narr{border-top:1px solid var(--line-soft);padding:14px;min-height:118px}
+.narr h3{margin:0 0 6px;font-size:12.5px;font-weight:600;color:var(--ink-3);letter-spacing:.01em}
+.narr p{margin:0;font-size:14.5px;line-height:1.62}
+.narr code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px;font-size:12.6px}
+
+/* ---------- transport ---------- */
+.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;margin-top:16px}
+button{
+  font-family:inherit;font-size:14px;font-weight:500;color:var(--ink);
+  background:var(--panel-2);border:1px solid var(--line);border-radius:9px;
+  padding:7px 13px;cursor:pointer;
+}
+button:hover{border-color:var(--ink-3)}
+button:disabled{opacity:.38;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--c-primeiro);outline-offset:2px}
+button.play{background:var(--ink);color:var(--panel);border-color:var(--ink);min-width:104px}
+.counter{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-2);margin-left:2px}
+.speed{display:flex;align-items:center;gap:7px;margin-left:auto;font-size:12.5px;color:var(--ink-2)}
+input[type=range]{accent-color:var(--c-primeiro);width:104px}
+.bar{height:3px;background:var(--line-soft);border-radius:0 0 13px 13px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c-primeiro);width:0;transition:width .15s linear}
+
+/* ---------- config ---------- */
+details.cfg{margin-top:16px}
+details.cfg summary{
+  cursor:pointer;padding:13px 14px;font-weight:500;font-size:14.5px;list-style:none;
+  display:flex;align-items:center;gap:8px;
+}
+details.cfg summary::-webkit-details-marker{display:none}
+details.cfg summary::before{content:"▸";color:var(--ink-3);transition:transform .15s}
+details.cfg[open] summary::before{transform:rotate(90deg)}
+.cfgbody{padding:0 14px 15px;border-top:1px solid var(--line-soft);padding-top:14px}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.presets button{font-size:13px;padding:6px 11px;border-radius:999px}
+.presets button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.fields{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--ink-2)}
+input[type=number],input[type=text]{
+  font-family:"JetBrains Mono",monospace;font-size:13.5px;color:var(--ink);
+  background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;
+}
+input[type=number]{width:78px}
+input[type=text]{width:200px}
+.err{color:var(--c-antes);font-size:13px;margin:10px 0 0;min-height:19px}
+
+/* ---------- notes ---------- */
+.notes{margin-top:16px;padding:16px 18px}
+.notes h2{font-size:17px;margin:0 0 4px;font-weight:600;letter-spacing:-.01em}
+.notes h2:not(:first-child){margin-top:22px}
+.notes p{color:var(--ink-2);margin:0 0 10px;max-width:74ch;font-size:14.3px}
+.notes code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px;font-size:12.6px;color:var(--ink)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+th{color:var(--ink-3);font-weight:500;font-size:12px}
+td.mono{font-family:"JetBrains Mono",monospace;font-size:12.4px}
+td.mono.b{color:var(--c-primeiro)}
+.tbl-scroll{overflow-x:auto}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12.5px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:15px;height:15px;border-radius:4px;border:1.4px solid var(--cell-line);background:var(--cell);flex:0 0 auto}
+.sw.free{background:var(--free);border-style:dashed}
+.sw.sent{background:var(--sent-bg);border-color:var(--c-antes);border-style:dashed}
+.sw.ok{background:var(--ok-bg);border-color:var(--ok-line)}
+.sw.hole{background:var(--hole-bg);border-color:var(--hole-line);border-style:dashed}
+footer{margin-top:22px;color:var(--ink-3);font-size:12.5px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Ordenação por inserção dentro de uma <code>fila circular</code></h1>
+  <p class="lede">O algoritmo é a inserção de sempre. A diferença é que o vetor dá a volta, então todo movimento vira <code>% tam</code> e o teste <code>j &gt;= 0</code> vira uma posição-sentinela. Ande passo a passo e veja onde cada índice está.</p>
+</header>
+
+<div class="grid">
+
+  <section class="panel">
+    <div class="readouts" id="readouts"></div>
+    <div class="ringbox"><svg id="ring" viewBox="0 0 470 412" role="img" aria-label="Vetor circular com os índices da fila"></svg></div>
+    <div class="strip-sec">
+      <p class="strip-title" id="stripTitle">A mesma fila desenrolada a partir de <code>primeiro</code> — aqui dá para ver que é inserção comum.</p>
+      <div class="strip" id="strip"></div>
+    </div>
+  </section>
+
+  <section class="panel codebox">
+    <pre class="code" id="code"></pre>
+    <div class="narr">
+      <h3 id="phase">Preparação</h3>
+      <p id="note"></p>
+    </div>
+  </section>
+
+</div>
+
+<div class="panel transport">
+  <button id="btnReset" title="Voltar ao início (Home)">Recomeçar</button>
+  <button id="btnPrev" title="Passo anterior (←)">Anterior</button>
+  <button class="play" id="btnPlay" title="Executar (espaço)">Executar</button>
+  <button id="btnNext" title="Próximo passo (→)">Próximo</button>
+  <span class="counter" id="counter">1 / 1</span>
+  <span class="speed"><label for="speed">velocidade</label><input type="range" id="speed" min="1" max="10" value="5"></span>
+</div>
+<div class="bar"><i id="bar"></i></div>
+
+<details class="panel cfg" id="cfg">
+  <summary>Montar outra fila</summary>
+  <div class="cfgbody">
+    <div class="presets" id="presets"></div>
+    <div class="fields">
+      <div class="field"><label for="fMax">MAXTAM</label><input type="number" id="fMax" min="4" max="11" value="7"></div>
+      <div class="field"><label for="fPri">primeiro</label><input type="number" id="fPri" min="0" value="6"></div>
+      <div class="field"><label for="fVal">valores, do primeiro ao último</label><input type="text" id="fVal" value="7, 3, 9, 1, 5"></div>
+      <button id="btnApply">Aplicar</button>
+      <button id="btnRnd">Sortear valores</button>
+    </div>
+    <p class="err" id="err"></p>
+  </div>
+</details>
+
+<section class="panel notes">
+  <h2>O que muda em relação à inserção clássica</h2>
+  <p>Linha por linha, é a mesma ideia: pegue o elemento <code>i</code>, empurre para frente todo mundo à esquerda que for maior e encaixe. Só a aritmética dos índices muda.</p>
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr><th style="width:44%">Inserção num vetor comum</th><th>Aqui, na fila circular</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">for (i = 1; i &lt; n; i++)</td><td class="mono b">for (i = (primeiro+1)%tam; i != ultimo; i = (i+1)%tam)</td></tr>
+      <tr><td class="mono">j = i - 1</td><td class="mono b">j = (i - 1 + tam) % tam</td></tr>
+      <tr><td class="mono">j &gt;= 0</td><td class="mono b">j != antesDoPrimeiro</td></tr>
+      <tr><td class="mono">array[j+1] = array[j]</td><td class="mono b">array[(j+1)%tam] = array[j]</td></tr>
+      <tr><td class="mono">j--</td><td class="mono b">j = (j - 1 + tam) % tam</td></tr>
+      <tr><td class="mono">array[j+1] = tmp</td><td class="mono b">array[(j+1)%tam] = tmp</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Por que <code>+ tam</code> antes do <code>%</code></h2>
+  <p>Em C o resto mantém o sinal do dividendo: <code>-1 % 8</code> dá <code>-1</code>, não <code>7</code>. Somar <code>tam</code> antes garante um número não negativo, aí o <code>%</code> leva de volta para o começo do vetor. Só aparece nas contas que <em>recuam</em> (<code>primeiro - 1</code>, <code>i - 1</code>, <code>j - 1</code>); nas que avançam, <code>(i + 1) % tam</code> basta.</p>
+
+  <h2>Por que a posição antes de <code>primeiro</code> serve de parada</h2>
+  <p>A fila reserva <code>MAXTAM + 1</code> posições para guardar no máximo <code>MAXTAM</code> elementos — é assim que ela distingue cheia de vazia. Com a fila cheia, <code>ultimo</code> cai exatamente em <code>primeiro - 1</code>, então essa casa nunca guarda elemento. Ela é o <code>-1</code> do vetor comum: um lugar seguro para o <code>j</code> parar.</p>
+  <p>E o <code>&amp;&amp;</code> é curto-circuito de propósito: quando <code>j</code> chega na sentinela a comparação para antes de ler <code>array[j]</code>, que ali guarda lixo.</p>
+
+  <h2>Custo</h2>
+  <p>Igual à inserção de sempre: <code>O(n²)</code> comparações e movimentações no pior caso (fila em ordem decrescente) e <code>O(n)</code> quando já está ordenada, porque o <code>while</code> falha na primeira comparação. Os <code>%</code> só somam uma constante.</p>
+
+  <h2>Legenda</h2>
+  <div class="legend">
+    <span><i class="sw"></i> na fila, ainda não inserido</span>
+    <span><i class="sw ok"></i> trecho já ordenado</span>
+    <span><i class="sw hole"></i> buraco (o valor visível é cópia velha)</span>
+    <span><i class="sw sent"></i> <code>antesDoPrimeiro</code>, a parada</span>
+    <span><i class="sw free"></i> fora da fila</span>
+  </div>
+</section>
+
+<footer>Use ← e → para andar passo a passo, espaço para executar.</footer>
+
+</div>
+
+<script>
+/* ------------------------------------------------------------------ código */
+const CODE = [
+ 'void insercao1() {',
+ '    int tam = MAXTAM + 1;',
+ '',
+ '    if (primeiro != ultimo) { // vazia',
+ '',
+ '        // a posição antes do primeiro nunca faz parte da fila (a fila guarda no',
+ '        // máximo MAXTAM elementos em MAXTAM + 1 posições), então serve de parada',
+ '        int antesDoPrimeiro = (primeiro - 1 + tam) % tam; // substitui o "j >= 0"',
+ '',
+ '        for (int i = (primeiro + 1) % tam; i != ultimo; i = (i + 1) % tam) {',
+ '            int tmp = array[i];',
+ '            int j = (i - 1 + tam) % tam;        // posição anterior a i',
+ '',
+ '            while (j != antesDoPrimeiro && array[j] > tmp) {',
+ '                array[(j + 1) % tam] = array[j];',
+ '                j = (j - 1 + tam) % tam;        // volta uma posição, circularmente',
+ '            }',
+ '            array[(j + 1) % tam] = tmp;',
+ '        }',
+ '    }',
+ '}'
+];
+const L = {TAM:2, IF:4, ANTES:8, FOR:10, TMP:11, JINIT:12, WHILE:14, SHIFT:15, JDEC:16, PUT:18, END:21};
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(line){
+  const ci = line.indexOf('//');
+  let body = ci >= 0 ? line.slice(0, ci) : line;
+  const cm  = ci >= 0 ? line.slice(ci) : '';
+  let out = esc(body)
+    .replace(/\b(void|int|if|for|while|else|return)\b/g,'<span class="kw">$1</span>')
+    .replace(/\b(MAXTAM)\b/g,'<span class="cst">$1</span>')
+    .replace(/\b(insercao1)\b/g,'<span class="fn">$1</span>')
+    .replace(/\b(array)\b/g,'<span class="var">$1</span>')
+    .replace(/\b(\d+)\b/g,'<span class="num">$1</span>');
+  if (cm) out += '<span class="cm">' + esc(cm) + '</span>';
+  return out;
+}
+function paintCode(){
+  document.getElementById('code').innerHTML = CODE.map((l,k)=>
+    '<span class="cl" data-l="'+(k+1)+'"><span class="ln">'+(k+1)+'</span>'+hl(l)+'</span>'
+  ).join('');
+}
+
+/* ------------------------------------------------------------- simulação */
+let cfg = { maxtam:7, primeiro:6, values:[7,3,9,1,5] };
+let steps = [], idx = 0, tam = 8, timer = null;
+
+function build(c){
+  const tm = c.maxtam + 1, primeiro = c.primeiro, vals = c.values.slice();
+  const n = vals.length, ultimo = (primeiro + n) % tm;
+  const a = new Array(tm).fill(null);
+  for (let k=0;k<n;k++) a[(primeiro+k)%tm] = vals[k];
+  for (let p=0;p<tm;p++) if (a[p]===null) a[p] = '·';
+
+  const out = [];
+  let antes = null;
+  const S = (line,title,note,ex) => {
+    out.push(Object.assign({
+      line, title, note, arr:a.slice(), tam:tm, primeiro, ultimo, n,
+      antes, i:null, j:null, tmp:null, hole:null, sorted:0, cmp:null, wrote:null, done:false
+    }, ex||{}));
+  };
+
+  S(L.TAM,'Preparação',
+    '<code>tam = MAXTAM + 1 = '+tm+'</code>. O vetor tem <b>'+tm+'</b> posições para guardar no máximo <b>'+(tm-1)+'</b> elementos — sempre sobra uma casa livre.');
+
+  if (n === 0){
+    S(L.IF,'Fila vazia','<code>primeiro ('+primeiro+') == ultimo ('+ultimo+')</code>, então a fila está vazia e o <code>if</code> barra tudo. O método não faz nada.');
+    S(L.END,'Fim','Nada para ordenar.',{done:true});
+    return {steps:out, tam:tm};
+  }
+
+  S(L.IF,'Fila não vazia','<code>primeiro ('+primeiro+') != ultimo ('+ultimo+')</code>: há <b>'+n+'</b> elemento(s). Pode ordenar.');
+
+  antes = (primeiro - 1 + tm) % tm;
+  S(L.ANTES,'A parada do laço de dentro',
+    '<code>antesDoPrimeiro = ('+primeiro+' - 1 + '+tm+') % '+tm+' = '+antes+'</code>. Essa casa nunca guarda elemento da fila, então é nela que o <code>j</code> vai parar — é o papel que o <code>j &gt;= 0</code> tem no vetor comum.',
+    {sorted:0});
+
+  let i = (primeiro + 1) % tm;
+  S(L.FOR, n===1 ? 'O laço nem começa' : 'Começa o laço de fora',
+    n===1
+      ? '<code>i = ('+primeiro+' + 1) % '+tm+' = '+i+'</code>, que já é <code>ultimo</code>. Com um elemento só, a fila já está ordenada e o corpo do <code>for</code> nunca roda.'
+      : '<code>i = ('+primeiro+' + 1) % '+tm+' = '+i+'</code>: o <b>segundo</b> elemento. O primeiro, sozinho, já conta como trecho ordenado.',
+    {i, sorted:1});
+
+  let round = 0;
+  while (i !== ultimo){
+    round++;
+    const sortedNow = (i - primeiro + tm) % tm;
+    const tmp = a[i];
+    S(L.TMP,'Rodada '+round+' · guardar',
+      '<code>tmp = array['+i+'] = '+tmp+'</code>. O valor sai da posição '+i+', que vira um <b>buraco</b> — o número que continua aparecendo lá é só uma cópia velha.',
+      {i, tmp, hole:i, sorted:sortedNow});
+
+    let j = (i - 1 + tm) % tm;
+    S(L.JINIT,'Rodada '+round+' · olhar para trás',
+      '<code>j = ('+i+' - 1 + '+tm+') % '+tm+' = '+j+'</code>: a casa imediatamente anterior a <code>i</code>, dando a volta no vetor se precisar.',
+      {i, tmp, j, hole:i, sorted:sortedNow});
+
+    let hole = i;
+    while (true){
+      if (j === antes){
+        S(L.WHILE,'Rodada '+round+' · chegou no começo',
+          '<code>j == antesDoPrimeiro ('+antes+')</code>: acabaram os elementos à esquerda, então <code>'+tmp+'</code> é o menor até agora e vai para a frente da fila. O <code>&amp;&amp;</code> sai antes de ler <code>array['+j+']</code>, que ali é lixo.',
+          {i, tmp, j, hole, sorted:sortedNow});
+        break;
+      }
+      if (!(a[j] > tmp)){
+        S(L.WHILE,'Rodada '+round+' · achou o lugar',
+          '<code>array['+j+'] = '+a[j]+'</code> não é maior que <code>tmp = '+tmp+'</code>, então <code>'+tmp+'</code> fica logo depois dele. Sai do <code>while</code>.',
+          {i, tmp, j, hole, cmp:j, sorted:sortedNow});
+        break;
+      }
+      S(L.WHILE,'Rodada '+round+' · comparar',
+        '<code>j ('+j+') != '+antes+'</code> e <code>array['+j+'] = '+a[j]+' &gt; tmp = '+tmp+'</code>: <code>'+a[j]+'</code> é grande demais para ficar antes de <code>'+tmp+'</code>, tem que andar uma casa.',
+        {i, tmp, j, hole, cmp:j, sorted:sortedNow});
+
+      const dest = (j + 1) % tm;
+      a[dest] = a[j];
+      hole = j;
+      S(L.SHIFT,'Rodada '+round+' · deslocar',
+        '<code>array['+dest+'] = array['+j+'] = '+a[dest]+'</code>. O valor andou para frente e o buraco desceu para a posição '+j+'.',
+        {i, tmp, j, hole, wrote:dest, sorted:sortedNow});
+
+      const oldj = j;
+      j = (j - 1 + tm) % tm;
+      S(L.JDEC,'Rodada '+round+' · recuar',
+        '<code>j = ('+oldj+' - 1 + '+tm+') % '+tm+' = '+j+'</code>. O <code>+ '+tm+'</code> existe porque em C <code>-1 % '+tm+'</code> dá <code>-1</code>, e não '+(tm-1)+'.',
+        {i, tmp, j, hole, sorted:sortedNow});
+    }
+
+    const dest = (j + 1) % tm;
+    a[dest] = tmp;
+    S(L.PUT,'Rodada '+round+' · encaixar',
+      '<code>array[('+j+' + 1) % '+tm+'] = array['+dest+'] = tmp = '+tmp+'</code>. O buraco foi preenchido e o trecho ordenado passou a ter '+(sortedNow+1)+' elementos.',
+      {i, tmp, j, wrote:dest, sorted:sortedNow+1});
+
+    const oldi = i;
+    i = (i + 1) % tm;
+    if (i === ultimo){
+      S(L.FOR,'Fim do laço de fora',
+        '<code>i = ('+oldi+' + 1) % '+tm+' = '+i+'</code> e <code>i == ultimo</code>, então o <code>for</code> termina.',
+        {i, sorted:n});
+    } else {
+      S(L.FOR,'Próxima rodada',
+        '<code>i = ('+oldi+' + 1) % '+tm+' = '+i+'</code>: próximo valor a entrar no trecho ordenado.',
+        {i, sorted:(i - primeiro + tm) % tm});
+    }
+  }
+  S(L.END,'Pronto',
+    'A fila está ordenada de <code>primeiro</code> até a casa antes de <code>ultimo</code>, em '+round+' rodada(s). As posições fora da fila nunca foram tocadas.',
+    {sorted:n, done:true});
+
+  return {steps:out, tam:tm};
+}
+
+/* --------------------------------------------------------------- desenho */
+const CX = 235, CY = 202, R = 110;
+function polar(p, r, tm){
+  const ang = (-90 + p * 360 / tm) * Math.PI / 180;
+  return {x: CX + r * Math.cos(ang), y: CY + r * Math.sin(ang), ang};
+}
+function inQueue(p, s){
+  if (s.n === 0) return false;
+  return ((p - s.primeiro + s.tam) % s.tam) < s.n;
+}
+function cellState(p, s){
+  if (s.hole === p) return 'hole';
+  if (!inQueue(p, s)) return (s.antes === p) ? 'sentinel' : 'free';
+  return (((p - s.primeiro + s.tam) % s.tam) < s.sorted) ? 'sorted' : 'queue';
+}
+function markersAt(p, s){
+  const m = [];
+  if (s.i === p) m.push({k:'i', t:'i', c:'var(--c-i)'});
+  if (s.j === p) m.push({k:'j', t:'j', c:'var(--c-j)'});
+  if (s.primeiro === p) m.push({k:'primeiro', t:'primeiro', c:'var(--c-primeiro)'});
+  if (s.ultimo === p) m.push({k:'ultimo', t:'ultimo', c:'var(--c-ultimo)'});
+  if (s.antes === p) m.push({k:'antes', t:'antes', c:'var(--c-antes)'});
+  return m;
+}
+function arc(p0, p1, r, tm){
+  const half = 180 / tm;
+  const a0 = (-90 + p0 * 360 / tm - half) * Math.PI / 180;
+  const a1 = (-90 + p1 * 360 / tm - half) * Math.PI / 180;
+  const sx = CX + r * Math.cos(a0), sy = CY + r * Math.sin(a0);
+  const ex = CX + r * Math.cos(a1), ey = CY + r * Math.sin(a1);
+  const span = ((p1 - p0 + tm) % tm) * 360 / tm;
+  return 'M '+sx.toFixed(1)+' '+sy.toFixed(1)+' A '+r+' '+r+' 0 '+(span > 180 ? 1 : 0)+' 1 '+ex.toFixed(1)+' '+ey.toFixed(1);
+}
+
+function drawRing(s){
+  const tm = s.tam, out = [];
+  out.push('<circle class="guide" cx="'+CX+'" cy="'+CY+'" r="'+R+'"/>');
+  if (s.n > 0) out.push('<path class="qarc" d="'+arc(s.primeiro, s.ultimo, R - 54, tm)+'"/>');
+  out.push('<text class="centerlab" x="'+CX+'" y="'+(CY-6)+'">posições do vetor</text>');
+  out.push('<text class="centerval" x="'+CX+'" y="'+(CY+13)+'">0 … '+(tm-1)+'</text>');
+
+  for (let p=0;p<tm;p++){
+    const c  = polar(p, R, tm);
+    const st = cellState(p, s);
+    const cls = [st];
+    if (s.cmp === p) cls.push('iscmp');
+    if (s.wrote === p) cls.push('iswrote');
+    out.push('<g class="'+cls.join(' ')+'">'
+      + '<rect class="cellrect" x="'+(c.x-26).toFixed(1)+'" y="'+(c.y-19).toFixed(1)+'" width="52" height="38" rx="8"/>'
+      + '<text class="cellval" x="'+c.x.toFixed(1)+'" y="'+c.y.toFixed(1)+'">'+s.arr[p]+'</text></g>');
+
+    const ip = polar(p, R - 31, tm);
+    out.push('<text class="idx" x="'+ip.x.toFixed(1)+'" y="'+ip.y.toFixed(1)+'">'+p+'</text>');
+
+    markersAt(p, s).forEach((m,k)=>{
+      const mp = polar(p, R + 38 + k*21, tm);
+      const w = m.t.length * 7 + 13;
+      out.push('<g><rect class="mkrect" x="'+(mp.x-w/2).toFixed(1)+'" y="'+(mp.y-9).toFixed(1)+'" width="'+w+'" height="18" rx="5" fill="none" stroke="'+m.c+'"/>'
+        + '<text class="mktext" x="'+mp.x.toFixed(1)+'" y="'+(mp.y+.5).toFixed(1)+'" fill="'+m.c+'">'+m.t+'</text></g>');
+    });
+  }
+  document.getElementById('ring').innerHTML = out.join('');
+}
+
+function scellHTML(p, s, label){
+  const st = cellState(p, s);
+  const cls = ['scell','st-'+st];
+  if (s.cmp === p) cls.push('is-cmp');
+  if (s.wrote === p) cls.push('is-wrote');
+  let mk = '';
+  if (s.i === p) mk += '<i class="m-i">i</i>';
+  if (s.j === p) mk += '<i class="m-j">j</i>';
+  if (s.antes === p) mk += '<i class="m-stop">stop</i>';
+  return '<div class="'+cls.join(' ')+'"><div class="smk">'+mk+'</div>'
+       + '<div class="sbox">'+s.arr[p]+'</div><div class="sidx">'+label+'</div></div>';
+}
+function drawStrip(s){
+  const tm = s.tam, items = [];
+  if (s.antes !== null){
+    items.push(scellHTML(s.antes, s, '['+s.antes+']'));
+    if (s.antes === tm - 1) items.push('<div class="wrapmark" title="o vetor dá a volta aqui">↩</div>');
+  }
+  for (let k=0;k<s.n;k++){
+    const p = (s.primeiro + k) % tm;
+    if (k > 0 && p === 0) items.push('<div class="wrapmark" title="o vetor dá a volta aqui">↩</div>');
+    items.push(scellHTML(p, s, '['+p+']'));
+  }
+  if (s.n === 0) items.push('<div class="wrapmark" style="margin-bottom:0">fila vazia</div>');
+  document.getElementById('strip').innerHTML = items.join('');
+}
+
+function ro(key, label, val){
+  const on = (val !== null && val !== undefined);
+  return '<span class="ro ro-'+key+(on?' on':'')+'"><span>'+label+'</span><b>'+(on ? val : '—')+'</b></span>';
+}
+function drawReadouts(s){
+  document.getElementById('readouts').innerHTML =
+      ro('tam','tam', s.tam)
+    + ro('primeiro','primeiro', s.primeiro)
+    + ro('ultimo','ultimo', s.ultimo)
+    + ro('antes','antesDoPrimeiro', s.antes)
+    + ro('i','i', s.i)
+    + ro('j','j', s.j)
+    + ro('tmp','tmp', s.tmp);
+}
+
+function render(){
+  const s = steps[idx];
+  drawReadouts(s); drawRing(s); drawStrip(s);
+
+  document.querySelectorAll('.cl').forEach(el=>el.classList.remove('active'));
+  const active = document.querySelector('.cl[data-l="'+s.line+'"]');
+  if (active){
+    active.classList.add('active');
+    const box = document.getElementById('code');
+    const top = active.offsetTop - box.clientHeight/2 + active.offsetHeight/2;
+    box.scrollTo({top:Math.max(0,top), behavior:'smooth'});
+  }
+
+  document.getElementById('phase').textContent = s.title;
+  document.getElementById('note').innerHTML = s.note;
+  document.getElementById('counter').textContent = (idx+1)+' / '+steps.length;
+  document.getElementById('bar').style.width = ((idx+1)/steps.length*100)+'%';
+  document.getElementById('btnPrev').disabled = idx === 0;
+  document.getElementById('btnNext').disabled = idx === steps.length-1;
+}
+
+/* ------------------------------------------------------------- controles */
+function go(n){ idx = Math.max(0, Math.min(steps.length-1, n)); render(); }
+function stop(){ if (timer){ clearInterval(timer); timer = null; } document.getElementById('btnPlay').textContent = 'Executar'; }
+function play(){
+  if (timer) return stop();
+  if (idx === steps.length-1) idx = 0;
+  document.getElementById('btnPlay').textContent = 'Pausar';
+  const ms = 1500 / Number(document.getElementById('speed').value);
+  timer = setInterval(()=>{ if (idx >= steps.length-1){ stop(); return; } go(idx+1); }, ms);
+}
+function load(c){
+  stop();
+  cfg = c;
+  const r = build(c);
+  steps = r.steps; tam = r.tam; idx = 0;
+  render();
+}
+
+document.getElementById('btnNext').onclick  = ()=>{ stop(); go(idx+1); };
+document.getElementById('btnPrev').onclick  = ()=>{ stop(); go(idx-1); };
+document.getElementById('btnReset').onclick = ()=>{ stop(); go(0); };
+document.getElementById('btnPlay').onclick  = play;
+document.getElementById('speed').oninput    = ()=>{ if (timer){ stop(); play(); } };
+document.addEventListener('keydown', e=>{
+  const t = e.target.tagName;
+  if (t === 'INPUT' || t === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight'){ e.preventDefault(); stop(); go(idx+1); }
+  else if (e.key === 'ArrowLeft'){ e.preventDefault(); stop(); go(idx-1); }
+  else if (e.key === ' '){ e.preventDefault(); play(); }
+  else if (e.key === 'Home'){ e.preventDefault(); stop(); go(0); }
+});
+
+/* --------------------------------------------------------------- presets */
+const PRESETS = [
+  {n:'Dá a volta no vetor', c:{maxtam:7, primeiro:6, values:[7,3,9,1,5]}},
+  {n:'Fila no começo',      c:{maxtam:7, primeiro:0, values:[5,2,8,1,9,3]}},
+  {n:'Já ordenada',         c:{maxtam:7, primeiro:5, values:[1,2,3,4,5]}},
+  {n:'Invertida',           c:{maxtam:7, primeiro:3, values:[5,4,3,2,1]}},
+  {n:'Fila cheia',          c:{maxtam:6, primeiro:4, values:[6,2,9,1,7,3]}},
+  {n:'Um elemento',         c:{maxtam:7, primeiro:7, values:[4]}},
+  {n:'Fila vazia',          c:{maxtam:7, primeiro:2, values:[]}}
+];
+function fillForm(c){
+  document.getElementById('fMax').value = c.maxtam;
+  document.getElementById('fPri').value = c.primeiro;
+  document.getElementById('fPri').max   = c.maxtam;
+  document.getElementById('fVal').value = c.values.join(', ');
+}
+function markPreset(k){
+  document.querySelectorAll('#presets button').forEach((b,n)=>b.setAttribute('aria-pressed', n === k ? 'true':'false'));
+}
+document.getElementById('presets').innerHTML = PRESETS.map((p,k)=>
+  '<button data-k="'+k+'" aria-pressed="'+(k===0?'true':'false')+'">'+p.n+'</button>').join('');
+document.querySelectorAll('#presets button').forEach(b=>{
+  b.onclick = ()=>{
+    const p = PRESETS[Number(b.dataset.k)];
+    document.getElementById('err').textContent = '';
+    fillForm(p.c); markPreset(Number(b.dataset.k)); load({maxtam:p.c.maxtam, primeiro:p.c.primeiro, values:p.c.values.slice()});
+  };
+});
+
+function apply(){
+  const err = document.getElementById('err');
+  const maxtam = parseInt(document.getElementById('fMax').value, 10);
+  const primeiro = parseInt(document.getElementById('fPri').value, 10);
+  const raw = document.getElementById('fVal').value.trim();
+  const values = raw === '' ? [] : raw.split(/[,\s]+/).map(Number);
+
+  if (!(maxtam >= 4 && maxtam <= 11)) return err.textContent = 'MAXTAM precisa ficar entre 4 e 11.';
+  if (values.some(v => !Number.isFinite(v))) return err.textContent = 'Os valores precisam ser números separados por vírgula.';
+  if (values.length > maxtam) return err.textContent = 'A fila comporta no máximo ' + maxtam + ' elementos com esse MAXTAM. Aumente MAXTAM ou tire valores.';
+  if (!(primeiro >= 0 && primeiro <= maxtam)) return err.textContent = 'primeiro precisa ficar entre 0 e ' + maxtam + '.';
+
+  err.textContent = '';
+  markPreset(-1);
+  document.getElementById('fPri').max = maxtam;
+  load({maxtam, primeiro, values});
+}
+document.getElementById('btnApply').onclick = apply;
+document.getElementById('btnRnd').onclick = ()=>{
+  const n = parseInt(document.getElementById('fMax').value,10) - 2;
+  const v = Array.from({length:Math.max(3,n)}, ()=>1 + Math.floor(Math.random()*49));
+  document.getElementById('fVal').value = v.join(', ');
+  apply();
+};
+document.getElementById('fMax').onchange = ()=>{ document.getElementById('fPri').max = document.getElementById('fMax').value; };
+
+/* ----------------------------------------------------------------- start */
+paintCode();
+fillForm(cfg);
+load(cfg);
+</script>
+</body>
+</html>

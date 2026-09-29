@@ -84,7 +84,7 @@ class Veiculo {
   public String formatVeiculo() {
     String comb = "";
     for (int i = 0; i < combustivel.length; i++) {
-      if (i > 0) comb += ";";
+      if (i > 0) comb += ",";
       comb += combustivel[i];
     }
 
@@ -180,13 +180,14 @@ public class bucketsort7_java {
     int m = 0;
     int id = 0;
 
-    while (sc.hasNextInt() && id != -1) {
+    while (sc.hasNextInt()) {
       id = sc.nextInt();
+      if (id == -1) break;
+
       int i = 0;
-      while (i < veiculos.length && veiculos[i].getId() != id && id!=-1) { i++; }
+      while (i < veiculos.length && veiculos[i].getId() != id) { i++; }
       selecionados[m++] = veiculos[i];
     }
-
     /* chama funcao do bucketsort */
     BucketSort.bucketsort(selecionados, m);
 

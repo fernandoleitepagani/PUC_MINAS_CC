@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algoritmos de ordenação — escolha um para acompanhar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#e8ecf4; --panel:#fbfcfe; --panel-2:#f0f3f9; --line:#d2d9e8; --line-soft:#e3e8f2;
+  --ink:#131c33; --ink-2:#4a5570; --ink-3:#7b859e;
+  --code-bg:#f4f6fc; --cell:#ffffff; --cell-line:#c7cfe2; --free:#e6eaf3;
+  --shadow:0 1px 2px rgba(19,28,51,.06), 0 8px 24px -12px rgba(19,28,51,.18);
+  --c-a:#1d7fd4; --c-b:#0e9f6e; --c-c:#b4690e; --c-d:#a8399c; --c-e:#d2365c; --c-f:#7c5cd6;
+  --ok-bg:rgba(14,159,110,.13); --ok-line:rgba(14,159,110,.55);
+  --piv-bg:rgba(168,57,156,.12); --piv-line:rgba(168,57,156,.6);
+  --cmp-line:#0e9f6e; --wr-line:#b4690e;
+  --kw:#a8399c; --num:#b4690e; --cm:#7b859e; --fn:#1d7fd4; --var:#0e9f6e; --cst:#d2365c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1220; --panel:#151c2b; --panel-2:#1b2333; --line:#2a3447; --line-soft:#222b3c;
+    --ink:#e2e8f6; --ink-2:#a6b0c8; --ink-3:#7d8aa5;
+    --code-bg:#121827; --cell:#1e2739; --cell-line:#39445c; --free:#1a2130;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+    --c-a:#58b2f5; --c-b:#3ed9a0; --c-c:#f0ab4c; --c-d:#e77fda; --c-e:#ff7a9c; --c-f:#b096f5;
+    --ok-bg:rgba(62,217,160,.14); --ok-line:rgba(62,217,160,.5);
+    --piv-bg:rgba(231,127,218,.14); --piv-line:rgba(231,127,218,.55);
+    --cmp-line:#3ed9a0; --wr-line:#f0ab4c;
+    --kw:#e77fda; --num:#f0ab4c; --cm:#6f7c96; --fn:#58b2f5; --var:#3ed9a0; --cst:#ff7a9c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1220; --panel:#151c2b; --panel-2:#1b2333; --line:#2a3447; --line-soft:#222b3c;
+  --ink:#e2e8f6; --ink-2:#a6b0c8; --ink-3:#7d8aa5;
+  --code-bg:#121827; --cell:#1e2739; --cell-line:#39445c; --free:#1a2130;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+  --c-a:#58b2f5; --c-b:#3ed9a0; --c-c:#f0ab4c; --c-d:#e77fda; --c-e:#ff7a9c; --c-f:#b096f5;
+  --ok-bg:rgba(62,217,160,.14); --ok-line:rgba(62,217,160,.5);
+  --piv-bg:rgba(231,127,218,.14); --piv-line:rgba(231,127,218,.55);
+  --cmp-line:#3ed9a0; --wr-line:#f0ab4c;
+  --kw:#e77fda; --num:#f0ab4c; --cm:#6f7c96; --fn:#58b2f5; --var:#3ed9a0; --cst:#ff7a9c;
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.5;padding:22px 16px 64px;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+header{margin-bottom:18px}
+h1{font-size:clamp(22px,3.4vw,31px);line-height:1.15;margin:0 0 6px;font-weight:600;letter-spacing:-.02em}
+h1 code{font-size:.92em;font-weight:700;color:var(--c-a)}
+.lede{margin:0;color:var(--ink-2);max-width:70ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;margin-top:16px}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.readouts{display:flex;flex-wrap:wrap;gap:7px;padding:13px 14px;border-bottom:1px solid var(--line-soft)}
+.ro{display:inline-flex;align-items:baseline;gap:6px;border:1px solid var(--line);border-radius:7px;padding:3px 8px;background:var(--panel-2);font-size:12px}
+.ro b{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;color:var(--ink)}
+.ro span{color:var(--ink-3)}
+.ro.on{background:transparent}
+.ro.c-a.on{border-color:var(--c-a)} .ro.c-a.on span{color:var(--c-a)}
+.ro.c-b.on{border-color:var(--c-b)} .ro.c-b.on span{color:var(--c-b)}
+.ro.c-c.on{border-color:var(--c-c)} .ro.c-c.on span{color:var(--c-c)}
+.ro.c-d.on{border-color:var(--c-d)} .ro.c-d.on span{color:var(--c-d)}
+.ro.c-e.on{border-color:var(--c-e)} .ro.c-e.on span{color:var(--c-e)}
+.ro.c-f.on{border-color:var(--c-f)} .ro.c-f.on span{color:var(--c-f)}
+.strip-sec{border-top:1px solid var(--line-soft);padding:12px 14px 15px}
+.strip-sec:first-child{border-top:none}
+.strip-title{font-size:12.5px;color:var(--ink-2);margin:0 0 10px}
+.strip{display:flex;align-items:flex-end;gap:5px;overflow-x:auto;padding-bottom:6px}
+.scell{flex:0 0 auto;text-align:center;width:44px}
+.smk{height:17px;display:flex;justify-content:center;gap:3px}
+.smk i{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;padding:0 4px;border-radius:4px;line-height:15px;border:1px solid currentColor;white-space:nowrap}
+.smk i.m-a{color:var(--c-a)} .smk i.m-b{color:var(--c-b)} .smk i.m-c{color:var(--c-c)}
+.smk i.m-d{color:var(--c-d)} .smk i.m-e{color:var(--c-e)} .smk i.m-f{color:var(--c-f)}
+.sbox{height:40px;display:flex;align-items:center;justify-content:center;border:1.4px solid var(--cell-line);border-radius:8px;background:var(--cell);font-family:"JetBrains Mono",monospace;font-weight:700;font-size:14.5px}
+.scell.st-free .sbox{background:var(--free);border-style:dashed;color:var(--ink-3);opacity:.55}
+.scell.st-sorted .sbox{background:var(--ok-bg);border-color:var(--ok-line)}
+.scell.st-pivot .sbox{background:var(--piv-bg);border-color:var(--piv-line)}
+.scell.st-dim .sbox{opacity:.32}
+.scell.is-cmp .sbox{border-color:var(--cmp-line);border-width:2.4px}
+.scell.is-write .sbox{border-color:var(--wr-line);border-width:2.4px;color:var(--wr-line)}
+.sidx{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--ink-3);margin-top:4px}
+.codebox{padding:0;overflow:hidden;display:flex;flex-direction:column}
+pre.code{margin:0;background:var(--code-bg);border-radius:14px 14px 0 0;font-family:"JetBrains Mono",monospace;font-size:12.6px;line-height:1.62;overflow-x:auto;overflow-y:auto;max-height:420px;padding:12px 0}
+.cl{display:block;padding:0 14px 0 0;white-space:pre;border-left:3px solid transparent}
+.cl .ln{display:inline-block;width:30px;text-align:right;margin-right:12px;color:var(--ink-3);opacity:.6;user-select:none}
+.cl.active{background:rgba(29,127,212,.12);border-left-color:var(--c-a)}
+.cl.active .ln{opacity:1;color:var(--c-a)}
+.kw{color:var(--kw)} .num{color:var(--num)} .cm{color:var(--cm);font-style:italic} .fn{color:var(--fn)} .var{color:var(--var)} .cst{color:var(--cst)}
+.narr{border-top:1px solid var(--line-soft);padding:14px;min-height:118px}
+.narr h3{margin:0 0 6px;font-size:12.5px;font-weight:600;color:var(--ink-3);letter-spacing:.01em}
+.narr p{margin:0;font-size:14.5px;line-height:1.62}
+.narr code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px;font-size:12.6px}
+.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;margin-top:16px}
+button{font-family:inherit;font-size:14px;font-weight:500;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer}
+button:hover{border-color:var(--ink-3)} button:disabled{opacity:.38;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--c-a);outline-offset:2px}
+button.play{background:var(--ink);color:var(--panel);border-color:var(--ink);min-width:104px}
+.counter{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-2);margin-left:2px}
+.speed{display:flex;align-items:center;gap:7px;margin-left:auto;font-size:12.5px;color:var(--ink-2)}
+input[type=range]{accent-color:var(--c-a);width:104px}
+.bar{height:3px;background:var(--line-soft);border-radius:0 0 13px 13px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c-a);width:0;transition:width .15s linear}
+details.cfg{margin-top:16px}
+details.cfg summary{cursor:pointer;padding:13px 14px;font-weight:500;font-size:14.5px;list-style:none;display:flex;align-items:center;gap:8px}
+details.cfg summary::-webkit-details-marker{display:none}
+details.cfg summary::before{content:"▸";color:var(--ink-3);transition:transform .15s}
+details.cfg[open] summary::before{transform:rotate(90deg)}
+.cfgbody{padding:0 14px 15px;border-top:1px solid var(--line-soft);padding-top:14px}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.presets button{font-size:13px;padding:6px 11px;border-radius:999px}
+.presets button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.fields{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--ink-2)}
+input[type=text]{font-family:"JetBrains Mono",monospace;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:280px}
+.err{color:var(--c-e);font-size:13px;margin:10px 0 0;min-height:19px}
+.notes{margin-top:16px;padding:16px 18px}
+.notes h2{font-size:17px;margin:0 0 4px;font-weight:600;letter-spacing:-.01em}
+.notes h2:not(:first-child){margin-top:22px}
+.notes p{color:var(--ink-2);margin:0 0 10px;max-width:76ch;font-size:14.3px}
+.notes code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px;font-size:12.6px;color:var(--ink)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+th{color:var(--ink-3);font-weight:500;font-size:12px}
+.tbl-scroll{overflow-x:auto}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12.5px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:15px;height:15px;border-radius:4px;border:1.4px solid var(--cell-line);background:var(--cell);flex:0 0 auto}
+.sw.ok{background:var(--ok-bg);border-color:var(--ok-line)}
+.sw.piv{background:var(--piv-bg);border-color:var(--piv-line)}
+.sw.free{background:var(--free);border-style:dashed}
+.sw.cmp{border-color:var(--cmp-line);border-width:2.4px}
+.sw.wr{border-color:var(--wr-line);border-width:2.4px}
+footer{margin-top:22px;color:var(--ink-3);font-size:12.5px}
+.home{display:inline-block;margin-bottom:10px;font-size:12.5px;color:var(--ink-3);text-decoration:none}
+.home:hover{color:var(--c-a)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:18px}
+.card{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;text-decoration:none;color:var(--ink);transition:transform .1s, border-color .1s}
+.card:hover{border-color:var(--c-a);transform:translateY(-2px)}
+.card-n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-3);border:1px solid var(--line);border-radius:6px;padding:2px 6px;flex:0 0 auto}
+.card-body{display:flex;flex-direction:column;gap:5px}
+.card-title{font-weight:600;font-size:16px;letter-spacing:-.01em}
+.card-desc{color:var(--ink-2);font-size:13px;line-height:1.5}
+.card-cost{color:var(--c-c);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Algoritmos de ordenação, passo a passo</h1>
+  <p class="lede">Escolha um algoritmo para acompanhar sua execução linha por linha: veja o código destacado, o estado do vetor a cada passo e uma narração do que está acontecendo. Use os controles de reprodução, teste seus próprios valores e compare o custo de cada um.</p>
+</header>
+<nav class="menu-grid">
+  <a class="card" href="selecao.html">
+    <span class="card-n">01</span>
+    <span class="card-body">
+      <span class="card-title">Seleção</span>
+      <span class="card-desc">A cada rodada, ache o menor valor do trecho restante e mande-o para o começo.</span>
+      <span class="card-cost mono">O(n²)</span>
+    </span>
+  </a>
+  <a class="card" href="insercao.html">
+    <span class="card-n">02</span>
+    <span class="card-body">
+      <span class="card-title">Inserção</span>
+      <span class="card-desc">Pegue cada valor e empurre-o para trás até achar seu lugar no trecho já ordenado.</span>
+      <span class="card-cost mono">O(n²), O(n) quase ordenado</span>
+    </span>
+  </a>
+  <a class="card" href="bolha.html">
+    <span class="card-n">03</span>
+    <span class="card-body">
+      <span class="card-title">Bolha</span>
+      <span class="card-desc">Compare vizinhos e troque-os fora de ordem; o maior valor borbulha até o fim a cada rodada.</span>
+      <span class="card-cost mono">O(n²), O(n) melhor caso</span>
+    </span>
+  </a>
+  <a class="card" href="quicksort.html">
+    <span class="card-n">04</span>
+    <span class="card-body">
+      <span class="card-title">Quicksort</span>
+      <span class="card-desc">Escolha um pivô, particione o vetor em torno dele e repita recursivamente.</span>
+      <span class="card-cost mono">O(n log n) médio</span>
+    </span>
+  </a>
+  <a class="card" href="shellsort.html">
+    <span class="card-n">05</span>
+    <span class="card-body">
+      <span class="card-title">Shellsort</span>
+      <span class="card-desc">Uma inserção que primeiro compara elementos afastados por um gap decrescente.</span>
+      <span class="card-cost mono">~O(n^1.3) a O(n²)</span>
+    </span>
+  </a>
+  <a class="card" href="countingsort.html">
+    <span class="card-n">06</span>
+    <span class="card-body">
+      <span class="card-title">Counting sort</span>
+      <span class="card-desc">Conte quantas vezes cada valor aparece e distribua direto na posição final.</span>
+      <span class="card-cost mono">O(n + k)</span>
+    </span>
+  </a>
+  <a class="card" href="radixsort.html">
+    <span class="card-n">07</span>
+    <span class="card-body">
+      <span class="card-title">Radix sort</span>
+      <span class="card-desc">Ordene dígito por dígito com um counting sort estável em cada passada.</span>
+      <span class="card-cost mono">O(d·(n+b))</span>
+    </span>
+  </a>
+  <a class="card" href="heapsort.html">
+    <span class="card-n">08</span>
+    <span class="card-body">
+      <span class="card-title">Heapsort</span>
+      <span class="card-desc">Construa um heap de máximo e extraia repetidamente o maior valor.</span>
+      <span class="card-cost mono">O(n log n)</span>
+    </span>
+  </a>
+  <a class="card" href="mergesort.html">
+    <span class="card-n">09</span>
+    <span class="card-body">
+      <span class="card-title">Mergesort</span>
+      <span class="card-desc">Divida o vetor ao meio recursivamente e intercale as metades ordenadas.</span>
+      <span class="card-cost mono">O(n log n)</span>
+    </span>
+  </a>
+</nav>
+<footer>Cada página tem seus próprios controles (Executar / Anterior / Próximo / velocidade) e um painel para testar outros valores.</footer>
+</div>
+</body>
+</html>
