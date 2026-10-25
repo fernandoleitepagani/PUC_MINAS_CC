@@ -1,0 +1,30 @@
+Faça a implementação de uma árvore binária de pesquisa (ABP) em Java para armazenar números inteiros. Crie um programa que instancia uma nova árvore e processa as operações solicitadas na entrada de dados, obedecendo o seguinte formato:
+
+
+I X: insere o número X;
+P Y: pesquisa se o número Y está na árvore, imprimindo S caso verdadeiro e N caso contrário. O algoritmo de pesquisa deve imprimir cada nó visitado;
+PRE: imprime os elementos da árvore por caminhamento pré-ordem ou V se a árvore estiver vazia;
+POS: imprime os elementos da árvore por caminhamento pós-ordem ou V se a árvore estiver vazia;
+EM: imprime os elementos da árvore por caminhamento em-ordem ou V se a árvore estiver vazia;
+
+Veja os arquivos de entrada (pub.in) e saída (pub.out).
+
+Instruções:
+
+
+Criar a classe No
+
+Criar a classe ArvoreBinaria, com a seguinte interface:
+
+public void inserir(int x);
+public boolean pesquisar(int x);
+
+public void caminharPre();
+
+public void caminharPos();
+
+public void caminharEm();
+
+
+Criar a classe LabArvoreBinaria com o método main, responsável por ler e processar a entrada de dados.
+

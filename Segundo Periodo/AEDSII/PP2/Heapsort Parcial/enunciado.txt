@@ -1,0 +1,34 @@
+Uma plataforma de cinema deseja apresentar um ranking dos filmes mais premiados no Oscar. Para isso, possui um catálogo com informações sobre os filmes, incluindo o título, o ano de lançamento e a quantidade de prêmios recebidos.
+
+A classificação deverá seguir os seguintes critérios, nesta ordem:
+
+Quantidade de prêmios: filmes com mais prêmios devem aparecer primeiro.
+
+Ano de lançamento: em caso de empate na quantidade de prêmios, o filme mais antigo deve aparecer primeiro.
+
+Título: caso a quantidade de prêmios e o ano sejam iguais, os filmes devem ser classificados em ordem alfabética.
+
+Como apenas os K primeiros colocados são necessários, você deverá utilizar uma adaptação do Heapsort para realizar uma ordenação parcial.
+
+ENTRADA
+
+A entrada contém diversos casos de teste e termina com o fim do arquivo (EOF).
+
+Cada caso de teste começa com dois inteiros N e K, indicando, respectivamente, a quantidade de filmes e a quantidade de filmes que deverão aparecer no ranking, sendo 1 ≤ K ≤ N.
+
+As N linhas seguintes contêm três campos, separados por espaços:
+
+Quantidade de prêmios recebidos no Oscar (inteiro).
+
+Ano de lançamento do filme (inteiro).
+
+Título do filme (texto com até 100 caracteres, podendo conter espaços).
+
+SAÍDA
+
+Para cada caso de teste, imprima apenas os K primeiros filmes do ranking, respeitando os três critérios de classificação.
+
+Cada filme deverá ser apresentado em uma linha, contendo a quantidade de prêmios, o ano de lançamento e o título, no mesmo formato da entrada.
+
+Não imprima linhas em branco entre os casos de teste.
+
